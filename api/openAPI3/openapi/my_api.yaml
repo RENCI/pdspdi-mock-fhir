@@ -1,68 +1,62 @@
 openapi: 3.0.0
 info:
-  description: |
-    This is a sample logging server.
-  version: "1.0.0"
-  title: txlogging
-tags:
-  - name: logging
-    description: logging
-paths:
-  /log:
-    post:
-      tags:
-        - logging
-      summary: Add a log entry
-      operationId: api.postLog
-      responses:
-        '200':
-          description: successful operation
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Log'
+  version: '1'
+  title: 'mock FHIR'
+  description: 'mock FHIR'
+paths: 
+  /Patient/{patient_id}:
     get:
-      tags:
-        - logging
-      summary: get log entries
-      description: get log entries
-      operationId: api.getLog
+      operationId: api.get_patient
       parameters:
-        - name: start
-          in: query
-          description: start
-          schema:
-            type: string
-        - name: end
-          in: query
-          description: end
+        - name: patient_id
+          in: path
+          required: true
           schema:
             type: string
       responses:
-        '200':
-          description: successful operation
+        200:
+          description: success operation
           content:
-            application/x-ndjson:
-              schema: {}
-        '400':
-          description: Invalid value
-components:
-  schemas:
-    Log:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        timestamp:
-          type: string
-          format: timestamp
-        message:
-          type: string
-        event:
-          type: string
-        source:
-          type: string
-        level:
-          type: string
+            appliation/json:
+              schema:
+                type: object
+        404:
+          description: resource not found
+  /Obervation:
+    get:
+      operationId: api.get_observation
+      parameters: 
+        - name: patient_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: success operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+  /Condition:
+    get:
+      operationId: api.get_condition
+      parameters: 
+        - name: patient_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: success operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+  
+       

@@ -1,8 +1,14 @@
-import txlogging.dispatcher
+import pdsdatapluginmockfhir.dispatcher
 
-def getLog(start=None, end=None):
-    return txlogging.dispatcher.getLog(start, end)
+def get_patient(patient_id):
+    return pdsdatapluginmockfhir.dispatcher.get_patient(patient_id)
 
-def postLog(body):
-    return txlogging.dispatcher.postLog(body)
+def get_observation(patient_id):
+    return pdsdatapluginmockfhir.dispatcher.get_observation(patient_id)
+
+def get_condition(patient_id):
+    return pdsdatapluginmockfhir.dispatcher.get_condition(patient_id)
+
+
+
 
