@@ -50,7 +50,12 @@ paths:
       responses:
         200:
           description: success operation
-  /Obervation:
+    delete:
+      operationId: api.delete_patient
+      responses:
+        200:
+          description: success operation
+  /Observation:
     get:
       operationId: api.get_observation
       parameters: 
@@ -75,6 +80,11 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/Observation"
+      responses:
+        200:
+          description: success operation
+    delete:
+      operationId: api.delete_observation
       responses:
         200:
           description: success operation
@@ -103,6 +113,11 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Condition'
+      responses:
+        200:
+          description: success operation
+    delete:
+      operationId: api.delete_condition
       responses:
         200:
           description: success operation

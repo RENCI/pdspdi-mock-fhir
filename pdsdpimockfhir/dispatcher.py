@@ -22,31 +22,42 @@ def get_patient(patient_id):
     coll = mongo_client[mongo_database][PATIENT_COLL]
     res = coll.find({"id": patient_id})
     records = list(res)
-    if len(records) != 1:
-        raise RuntimeError("zero or more than one patient")
+    if len(records) == 0:
+        return "not found", 404
+    elif len(records) > 1:
+        raise RuntimeError(f"more than one patient with id {patient_id} {records}")
 
-    return records[0]
+    resc = records[0]
+    del resc["_id"]
+    return resc
 
 
 def get_observation(patient_id):
     coll = mongo_client[mongo_database][OBSERVATION_COLL]
-    res = coll.find({"subject.reference": f"Patient/{patient_id}")
+    res = coll.find({"subject.reference": f"Patient/{patient_id}"})
     records = list(res)
 
+    for resc in records:
+        del resc["_id"]
     return records
 
                     
 def get_condition(patient_id):
     coll = mongo_client[mongo_database][CONDITION_COLL]
-    res = coll.find({"subject.reference": f"Patient/{patient_id}")
+    res = coll.find({"subject.reference": f"Patient/{patient_id}"})
     records = list(res)
 
+    for resc in records:
+        del resc["_id"]
     return records
 
 
 def post_patient(resource):
     coll = mongo_client[mongo_database][PATIENT_COLL]
     res = coll.insert_one(resource)
+    res = coll.find()
+    records = list(res)
+
     return "record inserted"
 
 
@@ -56,7 +67,7 @@ def post_observation(resource):
     return "record inserted"
 
 
-def post_patient(resource):
+def post_condition(resource):
     coll = mongo_client[mongo_database][CONDITION_COLL]
     res = coll.insert_one(resource)
     return "record inserted"
@@ -70,6 +81,25 @@ def post_bundle(bundle):
         coll.insert_one(resc)
 
 
-def delete_resource(bundle):
-    mongo_client.drop_database(mongo_database)
+def delete_resource():
+    db = mongo_client[mongo_database]
+    db[PATIENT_COLL].remove()
+    db[CONDITION_COLL].remove()
+    db[OBSERVATION_COLL].remove()
+
+
+def delete_patient():
+    db = mongo_client[mongo_database]
+    db[PATIENT_COLL].remove()
+
+
+def delete_observation():
+    db = mongo_client[mongo_database]
+    db[OBSERVATION_COLL].remove()
+
+
+def delete_condition():
+    db = mongo_client[mongo_database]
+    db[CONDITION_COLL].remove()
+
 

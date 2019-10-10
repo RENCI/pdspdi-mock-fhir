@@ -3,5 +3,6 @@ services:
   pdsdpi-mock-fhir-test:
     build:
       context: test
+    command: ["-s", "-x", "-v"]
     depends_on:
       - pdsdpi-mock-fhir
