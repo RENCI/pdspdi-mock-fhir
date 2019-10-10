@@ -1,7 +1,7 @@
 version: '3'
 services:
-  txlogging-test:
+  pdsdpi-mock-fhir-test:
     build:
       context: test
     depends_on:
-      - txlogging
+      - pdsdpi-mock-fhir

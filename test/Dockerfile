@@ -1,9 +1,9 @@
 FROM python:3-alpine
 
-RUN pip install requests pytest ndjson
+RUN pip install requests pytest
 RUN mkdir test
 
-COPY test_logging.py /test/test_logging.py
+COPY test_pdsdpi_mock_fhir.py /test/test_pdsdpi_mock_fhir.py
 
 WORKDIR test
 

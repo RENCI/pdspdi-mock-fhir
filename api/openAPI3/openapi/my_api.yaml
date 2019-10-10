@@ -4,6 +4,23 @@ info:
   title: 'mock FHIR'
   description: 'mock FHIR'
 paths: 
+  /resource:
+    delete:
+      operationId: api.delete_resource
+      responses:
+        200:
+          description: success operation
+  /Bundle:
+    post:
+      operationId: api.post_bundle
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Bundle"
+      responses:
+        200:
+          description: success operation
   /Patient/{patient_id}:
     get:
       operationId: api.get_patient
@@ -19,23 +36,20 @@ paths:
           content:
             appliation/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/Patient"
         404:
           description: resource not found
   /Patient:
     post:
       operationId: api.post_patient
       requestBody:
-        
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Patient"
       responses:
         200:
           description: success operation
-          content:
-            appliation/json:
-              schema:
-                type: object
-        404:
-          description: resource not found
   /Obervation:
     get:
       operationId: api.get_observation
@@ -53,7 +67,17 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
+                  $ref: "#/components/schemas/Observation"
+    post:
+      operationId: api.post_observation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Observation"
+      responses:
+        200:
+          description: success operation
   /Condition:
     get:
       operationId: api.get_condition
@@ -71,6 +95,65 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-  
-       
+                  $ref: "#/components/schemas/Condition"
+    post:
+      operationId: api.post_condition
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Condition'
+      responses:
+        200:
+          description: success operation
+components:
+  schemas:
+    Bundle:
+      type: object
+      properties:
+        entry:
+          type: array
+          items:
+            type: object
+            properties:
+              resource:
+                anyOf:
+                  - $ref: '#/components/schemas/Patient'
+                  - $ref: '#/components/schemas/Observation'
+                  - $ref: '#/components/schemas/Condition'
+            required: ["resource"]
+      required: ["entry"]
+    Patient:
+      type: object
+      properties:
+        id:
+          type: string
+        resourceType:
+          type: string
+      required: ["id", "resourceType"]
+    Observation:
+      type: object
+      properties:
+        resourceType:
+          type: string
+        subject:
+          type: object
+          properties:
+            reference:
+              type: string
+          required: ["reference"]
+      required: ["resourceType", "subject"]
+    Condition:
+      type: object
+      properties:
+        resourceType:
+          type: string
+        subject:
+          type: object
+          properties:
+            reference:
+              type: string
+          required: ["reference"]
+      required: ["resourceType", "subject"]
+
+

@@ -30,12 +30,8 @@ services:
     build: .
     restart: always
     depends_on:
-      - fluentd
       - mongodb
     environment:
-      FLUENTD_HOST: fluentd
-      FLUENTD_PORT: 24224
-      FLUENTD_APP: $FLUENTD_APP
       MONGO_HOST: mongodb
       MONGO_PORT: 27017
       MONGO_DATABASE: $MONGO_DATABASE
@@ -43,5 +39,5 @@ services:
       MONGO_NON_ROOT_USERNAME: $MONGO_NON_ROOT_USERNAME
       MONGO_NON_ROOT_PASSWORD: $MONGO_NON_ROOT_PASSWORD
     ports:
-      - $TXQUEUE_PORT:8080
+      - $API_PORT:8080
 

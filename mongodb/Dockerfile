@@ -1,3 +1,3 @@
 FROM mongo:4.2.0-bionic
 
-COPY cu.sh /docker-entrypoint-initdb.d/
+COPY initdb.sh /docker-entrypoint-initdb.d/
