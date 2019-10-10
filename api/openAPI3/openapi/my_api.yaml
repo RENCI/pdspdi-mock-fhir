@@ -22,6 +22,20 @@ paths:
                 type: object
         404:
           description: resource not found
+  /Patient:
+    post:
+      operationId: api.post_patient
+      requestBody:
+        
+      responses:
+        200:
+          description: success operation
+          content:
+            appliation/json:
+              schema:
+                type: object
+        404:
+          description: resource not found
   /Obervation:
     get:
       operationId: api.get_observation

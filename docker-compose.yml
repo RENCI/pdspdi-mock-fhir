@@ -5,7 +5,7 @@ services:
       context: mongodb
     restart: always
     volumes:
-      - $MONGODB_DATA_DIR:/data/db
+      - $MONGODB_DATA_VOLUME:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: $MONGO_INITDB_ROOT_USERNAME
       MONGO_INITDB_ROOT_PASSWORD: $MONGO_INITDB_ROOT_PASSWORD
@@ -26,25 +26,7 @@ services:
   #     ME_CONFIG_MONGODB_ADMINUSERNAME: $MONGODB_USERNAME
   #     ME_CONFIG_MONGODB_ADMINPASSWORD: $MONGODB_PASSWORD
 
-  fluentd:
-    build:
-      context: fluentd
-    restart: always
-    volumes:
-      - $FLUENTD_CONFIG_DIR:/fluentd/etc
-    command: -v
-    environment:
-      FLUENTD_APP: $FLUENTD_APP
-      MONGO_DATABASE: $MONGO_DATABASE
-      MONGO_COLLECTION: $MONGO_COLLECTION
-      MONGO_NON_ROOT_USERNAME: $MONGO_NON_ROOT_USERNAME
-      MONGO_NON_ROOT_PASSWORD: $MONGO_NON_ROOT_PASSWORD
-    depends_on:
-      - mongodb
-    expose:
-      - 24224
-    
-  txlogging:
+  pdsdpi-mock-fhir:
     build: .
     restart: always
     depends_on:
@@ -63,7 +45,3 @@ services:
     ports:
       - $TXQUEUE_PORT:8080
 
-    
-    
-volumes:
-  logvolume01: {}
