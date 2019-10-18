@@ -26,6 +26,7 @@ def get_patient(patient_id):
         else:
             resc = resp.json()
             cache.update_patient(resc, curr_time)
+            return resc
     else:
         return "not found", 404
         

@@ -37,6 +37,9 @@ services:
     build:
       context: .
       dockerfile: test/hapi-fhir/Dockerfile
-    command: ["-s", "-x", "-v"]
+    environment:
+      PATIENT_ID_EXISTENT: 14
+      PATIENT_ID_NONEXISTENT: 15
+    command: ["-s", "-x", "-vv"]
     depends_on:
       - pdsdpi-mock-fhir
