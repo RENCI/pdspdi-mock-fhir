@@ -1,5 +1,6 @@
 import requests
 import time
+from pdsdpimockfhir.utils import bundle
 
 patient_id = "1000"
 patient_id2 = "2000"
@@ -102,10 +103,10 @@ def test_post_observation():
     
         assert resp1.status_code == 200
 
-        resp2 = requests.get(f"http://pdsdpi-mock-fhir:8080/Observation?patient_id={patient_id}")
+        resp2 = requests.get(f"http://pdsdpi-mock-fhir:8080/Observation?patient={patient_id}")
 
         assert resp2.status_code == 200
-        assert resp2.json() == [observation_resc]
+        assert resp2.json() == bundle([observation_resc])
 
     finally:
         requests.delete("http://pdsdpi-mock-fhir:8080/resource")
@@ -118,10 +119,10 @@ def test_post_condition():
     
         assert resp1.status_code == 200
 
-        resp2 = requests.get(f"http://pdsdpi-mock-fhir:8080/Condition?patient_id={patient_id}")
+        resp2 = requests.get(f"http://pdsdpi-mock-fhir:8080/Condition?patient={patient_id}")
 
         assert resp2.status_code == 200
-        assert resp2.json() == [condition_resc]
+        assert resp2.json() == bundle([condition_resc])
 
     finally:
         requests.delete("http://pdsdpi-mock-fhir:8080/resource")
@@ -138,10 +139,10 @@ def test_post_observation2():
     
         assert resp1.status_code == 200
 
-        resp2 = requests.get(f"http://pdsdpi-mock-fhir:8080/Observation?patient_id={patient_id}")
+        resp2 = requests.get(f"http://pdsdpi-mock-fhir:8080/Observation?patient={patient_id}")
 
         assert resp2.status_code == 200
-        assert resp2.json() == [observation_resc]
+        assert resp2.json() == bundle([observation_resc])
 
     finally:
         requests.delete("http://pdsdpi-mock-fhir:8080/resource")
@@ -158,10 +159,10 @@ def test_post_condition2():
     
         assert resp1.status_code == 200
 
-        resp2 = requests.get(f"http://pdsdpi-mock-fhir:8080/Condition?patient_id={patient_id}")
+        resp2 = requests.get(f"http://pdsdpi-mock-fhir:8080/Condition?patient={patient_id}")
 
         assert resp2.status_code == 200
-        assert resp2.json() == [condition_resc]
+        assert resp2.json() == bundle([condition_resc])
 
     finally:
         requests.delete("http://pdsdpi-mock-fhir:8080/resource")

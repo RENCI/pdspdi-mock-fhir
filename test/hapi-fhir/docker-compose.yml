@@ -1,0 +1,42 @@
+version: '3'
+services:
+  pdsdpi-mock-fhir-mongodb:
+    build:
+      context: mongodb
+    restart: always
+    volumes:
+      - $MONGODB_DATA_VOLUME:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $MONGO_INITDB_ROOT_USERNAME
+      MONGO_INITDB_ROOT_PASSWORD: $MONGO_INITDB_ROOT_PASSWORD
+      MONGO_INITDB_DATABASE: $MONGO_DATABASE
+      MONGO_NON_ROOT_USERNAME: $MONGO_NON_ROOT_USERNAME
+      MONGO_NON_ROOT_PASSWORD: $MONGO_NON_ROOT_PASSWORD
+    expose:
+      - 27017
+      - 27018
+      - 27019
+
+  pdsdpi-mock-fhir:
+    build: .
+    restart: always
+    depends_on:
+      - pdsdpi-mock-fhir-mongodb
+    environment:
+      MONGO_HOST: pdsdpi-mock-fhir-mongodb
+      MONGO_PORT: 27017
+      MONGO_DATABASE: $MONGO_DATABASE
+      MONGO_NON_ROOT_USERNAME: $MONGO_NON_ROOT_USERNAME
+      MONGO_NON_ROOT_PASSWORD: $MONGO_NON_ROOT_PASSWORD
+      FHIR_SERVER_URL_BASE: http://hapi.fhir.org/baseR4
+      CACHE_TTL: 3600
+    ports:
+      - $API_PORT:8080
+
+  pdsdpi-mock-fhir-test-hapi-fhir:
+    build:
+      context: .
+      dockerfile: test/hapi-fhir/Dockerfile
+    command: ["-s", "-x", "-v"]
+    depends_on:
+      - pdsdpi-mock-fhir

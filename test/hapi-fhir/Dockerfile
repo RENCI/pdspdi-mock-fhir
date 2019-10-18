@@ -3,7 +3,7 @@ FROM python:3-alpine
 RUN pip install requests pytest
 RUN mkdir test
 
-COPY test/test_pdsdpi_mock_fhir.py /test/test_pdsdpi_mock_fhir.py
+COPY test/hapi-fhir/test_hapi_fhir.py /test/test_hapi_fhir.py
 COPY pdsdpimockfhir/utils.py /test/pdsdpimockfhir/utils.py
 
 WORKDIR test
