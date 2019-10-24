@@ -1,8 +1,7 @@
 version: '3'
 services:
   pdsdpi-mock-fhir-mongodb:
-    build:
-      context: mongodb
+    image: zooh/tx-persistence:0.1.0
     restart: always
     volumes:
       - $MONGODB_DATA_VOLUME:/data/db
