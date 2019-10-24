@@ -12,10 +12,6 @@ services:
       MONGO_INITDB_DATABASE: $MONGO_DATABASE
       MONGO_NON_ROOT_USERNAME: $MONGO_NON_ROOT_USERNAME
       MONGO_NON_ROOT_PASSWORD: $MONGO_NON_ROOT_PASSWORD
-    expose:
-      - 27017
-      - 27018
-      - 27019
 
   # pdsdpi-mock-fhir-mongo-express:
   #   image: mongo-express:0.49.0
