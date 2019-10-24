@@ -3,7 +3,7 @@ FROM python:3-alpine
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-RUN pip3 install --no-cache-dir flask pymongo gunicorn connexion requests
+RUN pip3 install --no-cache-dir flask pymongo gunicorn connexion requests flask-cors
 
 COPY api/openAPI3 /usr/src/app/api
 COPY pdsdpimockfhir /usr/src/app/pdsdpimockfhir
