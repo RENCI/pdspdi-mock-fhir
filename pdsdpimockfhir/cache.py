@@ -29,7 +29,12 @@ mongo_client = MongoClient(mongodb_host, mongodb_port, username=mongo_username, 
 
 # todo implement transation
 def update_patient(resource, retrieve_time):
-    patient_id = resource["id"]
+    try:
+        patient_id = resource["id"]
+    except:
+        print(f"cannot find id in resource {reosurce}")
+        sys.stdout.flush()
+        return
     coll = mongo_client[mongo_database][PATIENT_COLL]
     res = coll.replace_one({"id": patient_id}, copy.deepcopy(resource), upsert=True)
     update_retrieve_time("Patient", patient_id, retrieve_time)
@@ -37,7 +42,7 @@ def update_patient(resource, retrieve_time):
 
 def update_resource(resc_type, patient_id, bundle, retrieve_time):
     coll = mongo_client[mongo_database][COLL_DICT[resc_type]]
-    res = coll.delete_many({"id": patient_id})
+    res = coll.delete_many({"subject.reference": f"Patient/{patient_id}"})
     print(f"bundle={bundle}, copy.deepcopy(bundle)={copy.deepcopy(bundle)}")
     sys.stdout.flush()
     records = unbundle(copy.deepcopy(bundle))
