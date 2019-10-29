@@ -32,7 +32,7 @@ def update_patient(resource, retrieve_time):
     try:
         patient_id = resource["id"]
     except:
-        print(f"cannot find id in resource {reosurce}")
+        print(f"cannot find id in resource {resource}")
         sys.stdout.flush()
         return
     coll = mongo_client[mongo_database][PATIENT_COLL]
