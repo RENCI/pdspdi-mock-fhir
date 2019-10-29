@@ -1,8 +1,7 @@
 version: '3'
 services:
   pdsdpi-mock-fhir-mongodb:
-    build:
-      context: mongodb
+    image: zooh/tx-persistence:0.1.0
     restart: always
     volumes:
       - $MONGODB_DATA_VOLUME:/data/db
@@ -12,10 +11,6 @@ services:
       MONGO_INITDB_DATABASE: $MONGO_DATABASE
       MONGO_NON_ROOT_USERNAME: $MONGO_NON_ROOT_USERNAME
       MONGO_NON_ROOT_PASSWORD: $MONGO_NON_ROOT_PASSWORD
-    expose:
-      - 27017
-      - 27018
-      - 27019
 
   pdsdpi-mock-fhir:
     build: .

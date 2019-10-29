@@ -18,7 +18,7 @@ def get_patient(patient_id):
 
     if resc is not None:
         return resc
-    elif fhir_server_url_base is not None:
+    elif fhir_server_url_base is not None and fhir_server_url_base != "":
         curr_time = time.time()
         resp = requests.get(f"{fhir_server_url_base}/Patient/{patient_id}")
         if resp.status_code == 404:
@@ -36,7 +36,7 @@ def get_resource(resc_type, patient_id):
 
     if bundle is not None:
         return bundle
-    elif fhir_server_url_base is not None:
+    elif fhir_server_url_base is not None and fhir_server_url_base != "":
         curr_time = time.time()
         resp = requests.get(f"{fhir_server_url_base}/{resc_type}?patient={patient_id}")
         print(f"{fhir_server_url_base}/{resc_type}?patient={patient_id} => {resp.status_code}")
