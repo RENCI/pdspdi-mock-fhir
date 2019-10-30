@@ -1,9 +1,9 @@
 version: '3'
 services:
-  pdsdpi-mock-fhir-test:
+  pds-mock-fhir-test:
     build:
       context: .
       dockerfile: test/Dockerfile
     command: ["-s", "-x", "-v"]
     depends_on:
-      - pdsdpi-mock-fhir
+      - pds-mock-fhir

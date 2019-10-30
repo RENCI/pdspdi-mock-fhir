@@ -48,121 +48,121 @@ condition_resc2 = {
 def test_post_patient():
 
     try:
-        resp1 = requests.post("http://pdsdpi-mock-fhir:8080/Patient", json=patient_resc)
+        resp1 = requests.post("http://pds-mock-fhir:8080/Patient", json=patient_resc)
     
         assert resp1.status_code == 200
 
-        resp2 = requests.get(f"http://pdsdpi-mock-fhir:8080/Patient/{patient_id}")
+        resp2 = requests.get(f"http://pds-mock-fhir:8080/Patient/{patient_id}")
 
         assert resp2.status_code == 200
         assert resp2.json() == patient_resc
 
     finally:
-        requests.delete("http://pdsdpi-mock-fhir:8080/resource")
+        requests.delete("http://pds-mock-fhir:8080/resource")
 
 
 def test_post_patient2():
 
     try:
-        resp1 = requests.post("http://pdsdpi-mock-fhir:8080/Patient", json=patient_resc)
+        resp1 = requests.post("http://pds-mock-fhir:8080/Patient", json=patient_resc)
     
         assert resp1.status_code == 200
 
-        resp1 = requests.post("http://pdsdpi-mock-fhir:8080/Patient", json=patient_resc2)
+        resp1 = requests.post("http://pds-mock-fhir:8080/Patient", json=patient_resc2)
     
         assert resp1.status_code == 200
 
-        resp2 = requests.get(f"http://pdsdpi-mock-fhir:8080/Patient/{patient_id}")
+        resp2 = requests.get(f"http://pds-mock-fhir:8080/Patient/{patient_id}")
 
         assert resp2.status_code == 200
         assert resp2.json() == patient_resc
 
     finally:
-        requests.delete("http://pdsdpi-mock-fhir:8080/resource")
+        requests.delete("http://pds-mock-fhir:8080/resource")
 
 
 def test_post_patient_404():
 
     try:
-        resp1 = requests.post("http://pdsdpi-mock-fhir:8080/Patient", json=patient_resc)
+        resp1 = requests.post("http://pds-mock-fhir:8080/Patient", json=patient_resc)
     
         assert resp1.status_code == 200
 
-        resp2 = requests.get(f"http://pdsdpi-mock-fhir:8080/Patient/{patient_id2}")
+        resp2 = requests.get(f"http://pds-mock-fhir:8080/Patient/{patient_id2}")
 
         assert resp2.status_code == 404
 
     finally:
-        requests.delete("http://pdsdpi-mock-fhir:8080/resource")
+        requests.delete("http://pds-mock-fhir:8080/resource")
 
 
 def test_post_observation():
 
     try:
-        resp1 = requests.post("http://pdsdpi-mock-fhir:8080/Observation", json=observation_resc)
+        resp1 = requests.post("http://pds-mock-fhir:8080/Observation", json=observation_resc)
     
         assert resp1.status_code == 200
 
-        resp2 = requests.get(f"http://pdsdpi-mock-fhir:8080/Observation?patient={patient_id}")
+        resp2 = requests.get(f"http://pds-mock-fhir:8080/Observation?patient={patient_id}")
 
         assert resp2.status_code == 200
         assert resp2.json() == bundle([observation_resc])
 
     finally:
-        requests.delete("http://pdsdpi-mock-fhir:8080/resource")
+        requests.delete("http://pds-mock-fhir:8080/resource")
 
 
 def test_post_condition():
 
     try:
-        resp1 = requests.post("http://pdsdpi-mock-fhir:8080/Condition", json=condition_resc)
+        resp1 = requests.post("http://pds-mock-fhir:8080/Condition", json=condition_resc)
     
         assert resp1.status_code == 200
 
-        resp2 = requests.get(f"http://pdsdpi-mock-fhir:8080/Condition?patient={patient_id}")
+        resp2 = requests.get(f"http://pds-mock-fhir:8080/Condition?patient={patient_id}")
 
         assert resp2.status_code == 200
         assert resp2.json() == bundle([condition_resc])
 
     finally:
-        requests.delete("http://pdsdpi-mock-fhir:8080/resource")
+        requests.delete("http://pds-mock-fhir:8080/resource")
 
 
 def test_post_observation2():
 
     try:
-        resp1 = requests.post("http://pdsdpi-mock-fhir:8080/Observation", json=observation_resc)
+        resp1 = requests.post("http://pds-mock-fhir:8080/Observation", json=observation_resc)
 
         assert resp1.status_code == 200
 
-        resp1 = requests.post("http://pdsdpi-mock-fhir:8080/Observation", json=observation_resc2)
+        resp1 = requests.post("http://pds-mock-fhir:8080/Observation", json=observation_resc2)
     
         assert resp1.status_code == 200
 
-        resp2 = requests.get(f"http://pdsdpi-mock-fhir:8080/Observation?patient={patient_id}")
+        resp2 = requests.get(f"http://pds-mock-fhir:8080/Observation?patient={patient_id}")
 
         assert resp2.status_code == 200
         assert resp2.json() == bundle([observation_resc])
 
     finally:
-        requests.delete("http://pdsdpi-mock-fhir:8080/resource")
+        requests.delete("http://pds-mock-fhir:8080/resource")
 
 
 def test_post_condition2():
 
     try:
-        resp1 = requests.post("http://pdsdpi-mock-fhir:8080/Condition", json=condition_resc)
+        resp1 = requests.post("http://pds-mock-fhir:8080/Condition", json=condition_resc)
     
         assert resp1.status_code == 200
 
-        resp1 = requests.post("http://pdsdpi-mock-fhir:8080/Condition", json=condition_resc2)
+        resp1 = requests.post("http://pds-mock-fhir:8080/Condition", json=condition_resc2)
     
         assert resp1.status_code == 200
 
-        resp2 = requests.get(f"http://pdsdpi-mock-fhir:8080/Condition?patient={patient_id}")
+        resp2 = requests.get(f"http://pds-mock-fhir:8080/Condition?patient={patient_id}")
 
         assert resp2.status_code == 200
         assert resp2.json() == bundle([condition_resc])
 
     finally:
-        requests.delete("http://pdsdpi-mock-fhir:8080/resource")
+        requests.delete("http://pds-mock-fhir:8080/resource")

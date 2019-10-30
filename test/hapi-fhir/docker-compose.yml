@@ -1,6 +1,6 @@
 version: '3'
 services:
-  pdsdpi-mock-fhir-mongodb:
+  pds-mock-fhir-mongodb:
     image: zooh/tx-persistence:0.1.0
     restart: always
     volumes:
@@ -12,13 +12,13 @@ services:
       MONGO_NON_ROOT_USERNAME: $MONGO_NON_ROOT_USERNAME
       MONGO_NON_ROOT_PASSWORD: $MONGO_NON_ROOT_PASSWORD
 
-  pdsdpi-mock-fhir:
+  pds-mock-fhir:
     build: .
     restart: always
     depends_on:
-      - pdsdpi-mock-fhir-mongodb
+      - pds-mock-fhir-mongodb
     environment:
-      MONGO_HOST: pdsdpi-mock-fhir-mongodb
+      MONGO_HOST: pds-mock-fhir-mongodb
       MONGO_PORT: 27017
       MONGO_DATABASE: $MONGO_DATABASE
       MONGO_NON_ROOT_USERNAME: $MONGO_NON_ROOT_USERNAME
@@ -28,7 +28,7 @@ services:
     ports:
       - $API_PORT:8080
 
-  pdsdpi-mock-fhir-test-hapi-fhir:
+  pds-mock-fhir-test-hapi-fhir:
     build:
       context: .
       dockerfile: test/hapi-fhir/Dockerfile
@@ -37,4 +37,4 @@ services:
       PATIENT_ID_NONEXISTENT: 15
     command: ["-s", "-x", "-vv"]
     depends_on:
-      - pdsdpi-mock-fhir
+      - pds-mock-fhir
