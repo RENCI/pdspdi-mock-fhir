@@ -34,7 +34,7 @@ paths:
         200:
           description: success operation
           content:
-            appliation/json:
+            application/json:
               schema:
                 $ref: "#/components/schemas/Patient"
         404:
