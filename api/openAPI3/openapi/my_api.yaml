@@ -26,6 +26,7 @@ paths:
       operationId: api.get_patient
       parameters:
         - name: patient_id
+          example: 38
           in: path
           required: true
           schema:
@@ -128,8 +129,10 @@ components:
       properties:
         id:
           type: string
+          example: 38
         resourceType:
           type: string
+          example: "Observation"
       required: ["id", "resourceType"]
     Observation:
       type: object
