@@ -3,6 +3,7 @@ FROM python:3-alpine
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
+RUN apk add --no-cache gcc
 RUN pip3 install --no-cache-dir flask pymongo gunicorn[gevent]==19.9.0 connexion requests flask-cors
 
 COPY api/openAPI3 /usr/src/app/api
