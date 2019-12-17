@@ -22,7 +22,8 @@ CONDITION_COLL = "Condition"
 RETRIEVE_TIME_COLL = "RetrieveTime"
 COLL_DICT = {
     "Observation": OBSERVATION_COLL,
-    "Condition": CONDITION_COLL
+    "Condition": CONDITION_COLL,
+    "Patient": PATIENT_COLL
 }
 
 mongo_client = MongoClient(mongodb_host, mongodb_port, username=mongo_username, password=mongo_password, authSource=mongo_database)
@@ -105,7 +106,11 @@ def post_resource(resource, retrieve_time):
     res = coll.insert_one(resource)
     print(f"cache.post_resource: post resource {resource}")
     sys.stdout.flush()
-    update_retrieve_time(resc_type, resource["subject"]["reference"][8:], retrieve_time)  
+    if resc_type == "Patient":
+        patient_id = resource["id"]
+    else:
+        patient_id = resource["subject"]["reference"][8:]
+    update_retrieve_time(resc_type, patient_id, retrieve_time)  
 
 
 def post_bundle(bundle, retrieve_time):

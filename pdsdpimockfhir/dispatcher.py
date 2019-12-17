@@ -72,22 +72,27 @@ def get_condition(patient_id):
 
 def post_patient(resource):
     cache.update_patient(resource, time.time())
+    return "success", 200
     
 
 def post_observation(resource):
     print(f"post observation {resource}")
     cache.post_resource(resource, time.time())
+    return "success", 200
 
 
 def post_condition(resource):
     cache.post_resource(resource, time.time())
+    return "success", 200
 
 
 def post_bundle(bundle):
     cache.post_bundle(bundle, time.time())
+    return "success", 200
 
 
 def delete_resource():
     cache.delete_resource()
+    return "success", 200
 
 
