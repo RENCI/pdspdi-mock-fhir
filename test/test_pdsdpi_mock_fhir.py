@@ -168,12 +168,10 @@ def test_post_condition2():
         requests.delete("http://pds-mock-fhir:8080/resource")
 
 
-def test_post_bundle_patient2():
+def test_post_bundle_patient():
 
     try:
-        resp1 = requests.post("http://pds-mock-fhir:8080/Patient", json={
-            "entry": [patient_resc, patient_resc2]
-        )
+        resp1 = requests.post("http://pds-mock-fhir:8080/Bundle", json=bundle([patient_resc, patient_resc2]))
     
         assert resp1.status_code == 200
 
@@ -186,15 +184,10 @@ def test_post_bundle_patient2():
         requests.delete("http://pds-mock-fhir:8080/resource")
 
 
-def test_post_bundle_observation2():
+def test_post_bundle_observation():
 
     try:
-        resp1 = requests.post("http://pds-mock-fhir:8080/Observation", json={
-            "entry": [
-                observation_resc,
-                observation_resc2
-            ]
-        })
+        resp1 = requests.post("http://pds-mock-fhir:8080/Bundle", json=bundle([observation_resc, observation_resc2]))
     
         assert resp1.status_code == 200
 
@@ -207,12 +200,10 @@ def test_post_bundle_observation2():
         requests.delete("http://pds-mock-fhir:8080/resource")
 
 
-def test_post_bundle_condition2():
+def test_post_bundle_condition():
 
     try:
-        resp1 = requests.post("http://pds-mock-fhir:8080/Bundle", json={
-            "entry": [condition_resc, condition_resc2]
-        })
+        resp1 = requests.post("http://pds-mock-fhir:8080/Bundle", json=bundle([condition_resc, condition_resc2]))
     
         assert resp1.status_code == 200
 
