@@ -13,4 +13,4 @@ EXPOSE 8080
 
 ENTRYPOINT ["gunicorn"]
 
-CMD ["-w", "4", "-b", "0.0.0.0:8080", "--error-logfile", "-", "--capture-output", "--env", "SERVER_URL=/api", "api.server:create_app()"]
+CMD ["-w", "4", "-b", "0.0.0.0:8080", "--error-logfile", "-", "--capture-output", "api.server:create_app()"]
