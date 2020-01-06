@@ -3,6 +3,8 @@ info:
   version: '1'
   title: 'mock FHIR'
   description: 'mock FHIR'
+servers:
+  - url: {{ server_url }}
 paths: 
   /resource:
     delete:

@@ -1,6 +1,7 @@
 import requests
 import time
 from pdsdpimockfhir.utils import bundle
+# from tx.test.utils import bag_equal
 
 patient_id = "1000"
 patient_id2 = "2000"
@@ -214,3 +215,25 @@ def test_post_bundle_condition():
 
     finally:
         requests.delete("http://pds-mock-fhir:8080/resource")
+
+def test_ui():
+    resp = requests.get("http://pds-mock-fhir:8080/ui")
+    
+    assert resp.status_code == 200
+    
+# def test_get_patient_ids():
+
+#     try:
+#         resp1 = requests.post("http://pds-mock-fhir:8080/Bundle", json=bundle([patient_resc, patient_resc2]))
+    
+#         assert resp1.status_code == 200
+
+#         resp2 = requests.get(f"http://pds-mock-fhir:8080/Patient")
+
+#         assert resp2.status_code == 200
+#         assert bag_equal(resp2.json(), [patient_resc["id"], patient_resc2["id"]])
+
+#     finally:
+#         requests.delete("http://pds-mock-fhir:8080/resource")
+
+
