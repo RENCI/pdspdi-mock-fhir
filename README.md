@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.com/RENCI/pdspi-fhir-example.svg?branch=master)](https://travis-ci.com/RENCI/pdspi-fhir-example)
-# pdspdi-mock-fhir
+# pdspi-fhir-example
 
 ### run
 
