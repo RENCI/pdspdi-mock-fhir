@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/RENCI/pds-data-provider-mock-fhir.svg?token=hSyYs1SXtzNJJDmjUzHi&branch=master)](https://travis-ci.com/RENCI/pds-data-provider-mock-fhir)
+[![Build Status](https://travis-ci.com/RENCI/pdspi-fhir-example.svg?branch=master)](https://travis-ci.com/RENCI/pdspi-fhir-example)
 # pdspdi-mock-fhir
 
 ### run
