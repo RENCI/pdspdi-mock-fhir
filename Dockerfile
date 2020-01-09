@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 RUN apk add --no-cache gcc musl-dev
 RUN pip3 install --no-cache-dir flask pymongo gunicorn[gevent]==19.9.0 connexion[swagger-ui] requests flask-cors
 
-COPY api/openAPI3 /usr/src/app/api
+COPY api /usr/src/app/api
 COPY pdsdpimockfhir /usr/src/app/pdsdpimockfhir
 COPY tx-utils/src /usr/src/app
 
