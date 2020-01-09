@@ -6,4 +6,4 @@ branches:
     - master
 
 script:
-  - ./test.sh
+  - test/test.sh
