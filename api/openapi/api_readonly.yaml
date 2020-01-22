@@ -1,0 +1,140 @@
+openapi: 3.0.0
+info:
+  version: '1'
+  title: 'mock FHIR'
+  description: 'mock FHIR'
+paths: 
+  /Patient/{patient_id}:
+    get:
+      operationId: api.get_patient
+      parameters:
+        - name: patient_id
+          example: 38
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: success operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+        404:
+          description: resource not found
+  /Observation:
+    get:
+      operationId: api.get_observation
+      parameters: 
+        - name: patient
+          in: query
+          required: true
+          schema:
+            type: string
+          example: 1
+      responses:
+        200:
+          description: success operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Observation"
+  /Condition:
+    get:
+      operationId: api.get_condition
+      parameters: 
+        - name: patient
+          in: query
+          required: true
+          schema:
+            type: string
+          example: 1
+      responses:
+        200:
+          description: success operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Condition"
+components:
+  schemas:
+    Bundle:
+      type: object
+      properties:
+        entry:
+          type: array
+          items:
+            type: object
+            properties:
+              resource:
+                anyOf:
+                  - $ref: '#/components/schemas/Patient'
+                  - $ref: '#/components/schemas/Observation'
+                  - $ref: '#/components/schemas/Condition'
+            required: ["resource"]
+      required: ["entry"]
+      example:
+        entry:
+          - resource:
+              id: "1"
+              resourceType: Patient
+          - resource:
+              resourceType: Observation
+              subject:
+                reference: Patient/1
+          - resource:
+              resourceType: Condition
+              subject:
+                reference: Patient/1
+    Patient:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 38
+        resourceType:
+          type: string
+          example: "Observation"
+      required: ["id", "resourceType"]
+      example:
+        id: "1"
+        resourceType: Patient
+    Observation:
+      type: object
+      properties:
+        resourceType:
+          type: string
+        subject:
+          type: object
+          properties:
+            reference:
+              type: string
+          required: ["reference"]
+      required: ["resourceType", "subject"]
+      example:
+        resourceType: Observation
+        subject:
+          reference: Patient/1
+    Condition:
+      type: object
+      properties:
+        resourceType:
+          type: string
+        subject:
+          type: object
+          properties:
+            reference:
+              type: string
+          required: ["reference"]
+      required: ["resourceType", "subject"]
+      example:
+        resourceType: Condition
+        subject:
+          reference: Patient/1
+
+
