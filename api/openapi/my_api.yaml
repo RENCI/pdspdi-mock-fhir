@@ -60,6 +60,7 @@ paths:
           required: true
           schema:
             type: string
+          example: 1
       responses:
         200:
           description: success operation
@@ -88,6 +89,7 @@ paths:
           required: true
           schema:
             type: string
+          example: 1
       responses:
         200:
           description: success operation
@@ -124,6 +126,19 @@ components:
                   - $ref: '#/components/schemas/Condition'
             required: ["resource"]
       required: ["entry"]
+      example:
+        entry:
+          - resource:
+              id: 1
+              resourceType: Patient
+          - resource:
+              resourceType: Observation
+              subject:
+                reference: Patient/1
+          - resource:
+              resourceType: Condition
+              subject:
+                reference: Patient/1
     Patient:
       type: object
       properties:
@@ -134,6 +149,9 @@ components:
           type: string
           example: "Observation"
       required: ["id", "resourceType"]
+      example:
+        id: 1
+        resourceType: Patient
     Observation:
       type: object
       properties:
@@ -146,6 +164,10 @@ components:
               type: string
           required: ["reference"]
       required: ["resourceType", "subject"]
+      example:
+        resourceType: Observation
+        subject:
+          reference: Patient/1
     Condition:
       type: object
       properties:
@@ -158,5 +180,9 @@ components:
               type: string
           required: ["reference"]
       required: ["resourceType", "subject"]
+      example:
+        resourceType: Condition
+        subject:
+          reference: Patient/1
 
 
