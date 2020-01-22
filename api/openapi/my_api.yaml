@@ -129,7 +129,7 @@ components:
       example:
         entry:
           - resource:
-              id: 1
+              id: "1"
               resourceType: Patient
           - resource:
               resourceType: Observation
@@ -150,7 +150,7 @@ components:
           example: "Observation"
       required: ["id", "resourceType"]
       example:
-        id: 1
+        id: "1"
         resourceType: Patient
     Observation:
       type: object
