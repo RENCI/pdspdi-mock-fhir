@@ -13,3 +13,5 @@ docker-compose -f docker-compose.yml -f volume/docker-compose.yml up --build
 ./test.sh
 ```
 
+### API doc and live example
+http://pds.renci.org:8080/v1/plugin/pds-data-provider-mock-fhir/ui/
