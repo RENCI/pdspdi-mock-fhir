@@ -3,7 +3,17 @@ info:
   version: '1'
   title: 'mock FHIR'
   description: 'mock FHIR'
-paths: 
+paths:
+  /config:
+    get:
+      operationId: api.get_config
+      responses:
+        200:
+          description: success operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Config"
   /resource:
     delete:
       operationId: api.delete_resource
@@ -111,6 +121,90 @@ paths:
           description: success operation
 components:
   schemas:
+    Config:
+      type: object
+      required:
+        - pluginType
+      properties:
+        title:
+          type: string
+          description: "Meaningful name for this plugin"
+          example: "DOAC variable mapper"
+        piid:
+          type: string
+          description: "A string, unique to this deployment, used to identify this plugin in realtime"
+          example: "pdspi-mapper-DOAC"
+        pluginType:
+          type: string
+          enum: [e,g,m,mD,f,fD]
+          description: "A value from the enumeration below identifying the plugin type. 'g'=Guidance, 'c'=convenience, 'm'=mapper, 'f'=FHIR data server, 'mD'= default mapper, 'fD'=default FHIR server. In the clinical arena, only one FHIR server and only one mapper is allowed, and this can be indicated either with the defaults, or by only installing one mapper and one FHIR plugin type."
+          example: "m"
+        pluginTypeTitle:
+          type: string
+          description: "A human-readable value for the type. 'g'=Guidance, 'c'=Convenience, 'm'=Mapping, 'f'=FHIR, 'mD'=Default Mapping plugin, 'fD'=Default FHIR plugin"
+        pluginDependencies:
+          type: array
+          items:
+            type: string
+            description: "An array of container names upon which the plugin in question depends. For example, 'txscience/pds-fhir-example:0.2.0'. Mapper plugins must indicate a dependency on one or more FHIR plugins, but dependencies are discouraged otherwise in order to maintain the decoupling and reuse of plugins. Every plugin of type 'm' and 'mD' must have at least one 'f' or 'fD' plugin listed in pluginDependencies, otherwise return 500."
+        pluginSelectors:
+          description: "Maps the piid to a set of selector values."
+          type: array
+          items:
+            $ref: '#/components/schemas/Selector'
+        pluginParameterDefaults:
+          description: "Default, typed values for any parameters that might be required by the plugin"
+          type: array
+          items:
+            $ref: '#/components/schemas/PluginParameter'
+    PluginParameter:
+      type: object
+      required:
+        - id
+        - parameterValue
+      properties:
+        id:
+          type: string
+          description: "The id for one of the parameters used by the plugin in question. Parameters are completely defined by the plugin and need not be interchangable with other plugins. The client will have no prior knowledge for plugin parameters."
+          example: "current-time"
+        title: 
+          type: string
+          description: "A non-standardized, human-readable string to describe the id. May be implemented by the PDS to aid in debugging, clients should not depend on this value."
+          example: "Current Time"
+        parameterDescription:
+          type: string
+          description: "Description provided by the plugin. The plugin, not the client, is therefore responsible for converting the descriptions to the appropriate language based on internationalization and personalization preferences."
+          example: "Compute variables relevant to this timestamp."
+        parameterValue:
+          type: string
+          description: "The actual value of the parameter. NOTE: This value is actually an object type, but we use 'string' here to overcome a shortcoming of the swagger ui. This design choice was made in order to prioritize a better interactive documentation experience for the API user."
+          example: {"value": "2019-09-20T00:00:01Z"}
+        legalValues:
+          type: string
+          description: "The 'legalValues' will always be present in the '/config' endpoint response and need not be provided to or from the client in the '/guidance' endpoint call. Use the JSON schema, https://json-schema.org/draft/2019-09/json-schema-validation.html. For example, { type: 'string', 'enum': [ 'Gentamicin', 'Amikacin' ] } to define an enumeration,  { 'type': 'number' } for a float, and { 'type': 'number', 'minimum': '0' } for a positive number, and { 'type': 'integer' } for an integer. NOTE: This value is actually an object type, but we use 'string' here to overcome a shortcoming of the swagger ui. This design choice was made in order to prioritize a better interactive documentation experience for the API user. "
+          example: { "type": "string", "format": "time-stamp" }
+    Selector:
+      description: "Used for selecting plugins"
+      type: object
+      required:
+        - id
+      properties:
+        title:
+          type: string
+          example: "FHIR URI - an URL (locator) or an URN (unique name)"
+          description: "Human-readable name for this selector type."
+        id:
+          type: string
+          description: "The client should have prior knowledge of the full list of selectors available with this version of the mapper. This id is used to determine which selector type is described."
+          example: "FHIR.URI"
+        selectorValue:
+          type: string
+          description: "Unique identifier for this type. Stylistically, community standard coding system used for this type will preface the code used, e.g., http://fhir.org or urn://cdwh.nctracs.v1. The title in the example is optional. NOTE: This value is actually an object type, but we use 'string' here to overcome a shortcoming of the swagger ui. This design choice was made in order to prioritize a better interactive documentation experience for the API user. "
+          example: {"value": "http://hapi.fhir.org/baseR4", "title": "Hapi FHIR base URL"}
+        legalValues:
+          type: object
+          description: "If absent, all values are legal, so treat the value like a string. Use the JSON schema, https://json-schema.org/draft/2019-09/json-schema-validation.html. For example, { type: 'string', 'enum': [ 'Gentamicin', 'Amikacin' ] } to define an enumeration,  { 'type': 'number' } for a float, and { 'type': 'number', 'minimum': '0' } for a positive number, and { 'type': 'integer' } for an integer. Furthermore, a non-standard 'title' can be added in support of a human-readable string for the type's value. This maybe be implemented by the PDS to aid in debugging, however clients should not depend on this value. NOTE: This value is actually an object type, but we use 'string' here to overcome a shortcoming of the swagger ui. This design choice was made in order to prioritize a better interactive documentation experience for the API user."
+          example: { "type": "string", "enum": [{"value": "urn://cdwh.nctracs.v1", "title": "NCTraCS Carolina Data Warehouse"},{"value": "http://hapi.fhir.org/baseR4"},{"value": "https://open-ic.epic.com/FHIR/api/FHIR/DSTU2"}] }
     Bundle:
       type: object
       properties:

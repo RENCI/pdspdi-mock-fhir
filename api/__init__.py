@@ -38,5 +38,12 @@ def delete_observation():
 def delete_condition():
     return dispatcher.delete_condition()
 
+config = {
+    "title": "FHIR data provider",
+    "pluginType": "f",
+    "pluginTypeTitle": "FHIR",
+    "pluginSelectors": []
+}
 
-
+def get_config():
+    return config

@@ -217,7 +217,20 @@ def test_post_bundle_condition():
     finally:
         requests.delete(f"{php}/resource")
 
+config = {
+    "title": "FHIR data provider",
+    "pluginType": "f",
+    "pluginTypeTitle": "FHIR",
+    "pluginSelectors": []
+}
 
+def test_config():
+    resp = requests.get(f"{php}/config")
+    
+    assert resp.status_code == 200
+    assert resp.json() == config
+    
+    
 def test_ui():
 
     resp = requests.get(f"{php}/ui")
