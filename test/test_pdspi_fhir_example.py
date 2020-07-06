@@ -221,7 +221,9 @@ config = {
     "title": "FHIR data provider",
     "pluginType": "f",
     "pluginTypeTitle": "FHIR",
-    "pluginSelectors": []
+    "settingsDefaults": {
+        "pluginSelectors": []
+    }
 }
 
 def test_config():
