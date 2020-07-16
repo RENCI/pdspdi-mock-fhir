@@ -47,6 +47,9 @@ def delete_condition():
 def post_resources(body):
     return dispatcher.post_resources(body["resourceTypes"], body["pids"])
 
+def post_batch(body):
+    return dispatcher.post_batch(body)
+
 config = {
     "title": "FHIR data provider",
     "pluginType": "f",

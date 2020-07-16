@@ -8,7 +8,9 @@ import time
 import pdsdpimockfhir.cache as cache
 import requests
 import sys
+from urllib.parse import urlsplit
 from tx.fhir.utils import bundle, unbundle
+from tx.functional.either import Left, Right
 
 
 fhir_server_url_base = os.environ.get("FHIR_SERVER_URL_BASE")
@@ -65,27 +67,26 @@ def _get_resource(resc_type, patient_id):
 
     
 def post_resources(resc_types, patient_ids):
-    rescs = {}
-    for resc_type in resc_types:
-        recs = []
-        for patient_id in patient_ids:
+    patients = []
+    for patient_id in patient_ids:
+        requests = []
+        for resc_type in resc_types:
             if resc_type == "Patient":
-                resc = _get_patient(patient_id)
-                if resc is None:
-                    return resc
-                else:
-                    recs.append(resc)
+                requests.append({
+                    "url": f"/Patient/{patient_id}",
+                    "method": "GET"
+                })
             else:
-                resc = _get_resource(resc_type, patient_id)
-                if resc is None:
-                    return "not found", 404
-                else:
-                    recs.extend(unbundle(resc).value)
-        rescs[resc_type] = bundle(recs)
-    return rescs
-                
+                requests.append({
+                    "url": f"/{resc_type}?patient={patient_id}",
+                    "method": "GET"
+                })
+        batch = bundle(requests, "batch")
+        patient = _post_batch(batch).value
+        patients.append(patient)
+    return patients                
 
-    
+
 def get_resource(resource_name, patient_id):
     bundle = _get_resource(resource_name, patient_id)
     if bundle is None:
@@ -102,6 +103,32 @@ def post_patient(resource):
 def post_resource(resource):
     cache.post_resource(resource, time.time())
     return "success", 200
+
+
+def post_batch(batch):
+    return _post_batch(batch).rec(lambda x: (x, 500), lambda x: x)
+
+
+def _post_batch(batch):
+    def handle_requests(requests):
+        rescs = []
+        for request in requests:
+            method = request["method"]
+            url = request["url"]
+            result = urlsplit(url)
+            pcs = result.path.split("/")
+            qcs = map(lambda x: x.split("="), result.query.split("&"))
+            if pcs[1] == "Patient":
+                rescs.append(_get_patient(pcs[2]))
+            else:
+                patient_id = None
+                for qc in qcs:
+                    if qc[0] == "patient":
+                        patient_id = qc[1]
+                rescs.append(_get_resource(pcs[1], patient_id))
+        return Right(bundle(rescs, "batch-response"))
+
+    return unbundle(batch).bind(handle_requests)
 
 
 def post_bundle(bundle):

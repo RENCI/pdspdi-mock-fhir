@@ -171,6 +171,17 @@ paths:
       responses:
         200:
           description: success operation
+  /:
+    post:
+      operationId: api.post_batch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Batch"
+      responses:
+        200:
+          description: success operation
 components:
   schemas:
     Config:
@@ -616,8 +627,6 @@ components:
         resourceType: Condition
         subject:
           reference: Patient/1
-<<<<<<< HEAD
-=======
     MedicationRequest:
       type: object
       properties:
@@ -634,6 +643,7 @@ components:
         resourceType: MedicationRequest
         subject:
           reference: Patient/1
+    Batch: {}
 
 
->>>>>>> provide api for returning more than one resource types
+

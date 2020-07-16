@@ -1,6 +1,8 @@
 import requests
 import time
 from tx.fhir.utils import bundle, unbundle
+import sys
+import json
 # from tx.test.utils import bag_equal
 
 patient_id = "1000"
@@ -256,7 +258,7 @@ config = {
     }
 }
 
-def test_post_resouces():
+def test_post_resources():
 
     try:
         resp1 = requests.post(f"{php}/Patient", json=patient_resc)
@@ -274,19 +276,14 @@ def test_post_resouces():
         })
     
         assert resp1.status_code == 200
-        assert set(resp1.json().keys()) == {"Patient", "Observation", "Condition", "MedicationRequest"}
-        assert len(unbundle(resp1.json()["Patient"]).value) == 2
-        assert patient_resc in unbundle(resp1.json()["Patient"]).value
-        assert patient_resc2 in unbundle(resp1.json()["Patient"]).value
-        assert len(unbundle(resp1.json()["Observation"]).value) == 2
-        assert observation_resc in unbundle(resp1.json()["Observation"]).value
-        assert observation_resc2 in unbundle(resp1.json()["Observation"]).value
-        assert len(unbundle(resp1.json()["Condition"]).value) == 2
-        assert condition_resc in unbundle(resp1.json()["Condition"]).value
-        assert condition_resc2 in unbundle(resp1.json()["Condition"]).value
-        assert len(unbundle(resp1.json()["MedicationRequest"]).value) == 2
-        assert medication_request_resc in unbundle(resp1.json()["MedicationRequest"]).value
-        assert medication_request_resc2 in unbundle(resp1.json()["MedicationRequest"]).value
+        print(f"resp = {json.dumps(resp1.json(), indent=4)}")
+        sys.stdout.flush()
+        patients = resp1.json()
+        assert len(patients) == 2
+        for patient in patients:
+            assert patient["resourceType"] == "Bundle"
+            assert patient["type"] == "batch-response"
+            assert set(map(lambda x: x["resourceType"], unbundle(patient).value)) == {"Patient", "Bundle"}
 
     finally:
         requests.delete(f"{php}/resource")
