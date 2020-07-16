@@ -10,7 +10,7 @@ docker-compose -f docker-compose.yml -f volume/docker-compose.yml up --build
 ### test
 
 ```
-./test.sh
+test/test.sh
 ```
 
 ### API doc and live example
