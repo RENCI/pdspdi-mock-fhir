@@ -4,6 +4,6 @@ services:
     build:
       context: .
       dockerfile: test/Dockerfile
-    command: ["-s", "-x", "-v"]
+    command: ["-s", "-x", "-v"] # , "-k", "test_post_bundle_medication_request"]
     depends_on:
       - pdspi-fhir-example

@@ -6,7 +6,7 @@ from bson.json_util import dumps
 import logging
 import time
 import sys
-from .utils import bundle, unbundle
+from tx.fhir.utils import bundle, unbundle
 import copy
 
 
@@ -19,12 +19,9 @@ cache_ttl = float(os.environ.get("CACHE_TTL", "inf"))
 PATIENT_COLL = "Patient"
 OBSERVATION_COLL = "Observation"
 CONDITION_COLL = "Condition"
+MEDICATION_REQUEST_COLL = "MedicationRequest"
 RETRIEVE_TIME_COLL = "RetrieveTime"
-COLL_DICT = {
-    "Observation": OBSERVATION_COLL,
-    "Condition": CONDITION_COLL,
-    "Patient": PATIENT_COLL
-}
+resource_colls = [OBSERVATION_COLL, CONDITION_COLL, MEDICATION_REQUEST_COLL]
 
 mongo_client = MongoClient(mongodb_host, mongodb_port, username=mongo_username, password=mongo_password, authSource=mongo_database)
 
@@ -42,11 +39,11 @@ def update_patient(resource, retrieve_time):
 
 
 def update_resource(resc_type, patient_id, bundle, retrieve_time):
-    coll = mongo_client[mongo_database][COLL_DICT[resc_type]]
+    coll = mongo_client[mongo_database][resc_type]
     res = coll.delete_many({"subject.reference": f"Patient/{patient_id}"})
     print(f"bundle={bundle}, copy.deepcopy(bundle)={copy.deepcopy(bundle)}")
     sys.stdout.flush()
-    records = unbundle(copy.deepcopy(bundle))
+    records = unbundle(copy.deepcopy(bundle)).value
     if len(records) > 0:
         coll.insert_many(records)
     update_retrieve_time(resc_type, patient_id, retrieve_time)
@@ -91,7 +88,7 @@ def get_resource(resource_type, patient_id):
     rt = get_retrieve_time(resource_type, patient_id)
     if rt is None or curr_time - rt > cache_ttl:
         return None
-    coll = mongo_client[mongo_database][COLL_DICT[resource_type]]
+    coll = mongo_client[mongo_database][resource_type]
     res = coll.find({"subject.reference": f"Patient/{patient_id}"})
     records = list(res)
 
@@ -102,7 +99,7 @@ def get_resource(resource_type, patient_id):
                     
 def post_resource(resource, retrieve_time):
     resc_type = resource["resourceType"]
-    coll = mongo_client[mongo_database][COLL_DICT[resc_type]]
+    coll = mongo_client[mongo_database][resc_type]
     res = coll.insert_one(resource)
     print(f"cache.post_resource: post resource {resource}")
     sys.stdout.flush()
@@ -114,14 +111,14 @@ def post_resource(resource, retrieve_time):
 
 
 def post_bundle(bundle, retrieve_time):
-    for resc in unbundle(bundle):
+    for resc in unbundle(bundle).value:
         post_resource(resc, retrieve_time)
 
 
 def delete_resource():
     db = mongo_client[mongo_database]
     db[PATIENT_COLL].remove()
-    db[CONDITION_COLL].remove()
-    db[OBSERVATION_COLL].remove()
+    for resource_coll in resource_colls:
+        db[resource_coll].remove()
     db[RETRIEVE_TIME_COLL].remove()
 

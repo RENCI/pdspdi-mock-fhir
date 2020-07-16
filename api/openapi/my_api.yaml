@@ -20,6 +20,29 @@ paths:
       responses:
         200:
           description: success operation
+    post:
+      operationId: api.post_resources
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - resourceTypes
+                - pids
+              properties:
+                resourceTypes:
+                  type: array
+                  items:
+                    type: string
+                pids:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        200:
+          description: success operation
   /Bundle:
     post:
       operationId: api.post_bundle
@@ -116,6 +139,35 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Condition'
+      responses:
+        200:
+          description: success operation
+  /MedicationRequest:
+    get:
+      operationId: api.get_medication_request
+      parameters: 
+        - name: patient
+          in: query
+          required: true
+          schema:
+            type: string
+          example: 1
+      responses:
+        200:
+          description: success operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MedicationRequest"
+    post:
+      operationId: api.post_medication_request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicationRequest"
       responses:
         200:
           description: success operation
@@ -564,3 +616,24 @@ components:
         resourceType: Condition
         subject:
           reference: Patient/1
+<<<<<<< HEAD
+=======
+    MedicationRequest:
+      type: object
+      properties:
+        resourceType:
+          type: string
+        subject:
+          type: object
+          properties:
+            reference:
+              type: string
+          required: ["reference"]
+      required: ["resourceType", "subject"]
+      example:
+        resourceType: MedicationRequest
+        subject:
+          reference: Patient/1
+
+
+>>>>>>> provide api for returning more than one resource types

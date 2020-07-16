@@ -1,6 +1,6 @@
 import requests
 import time
-from pdsdpimockfhir.utils import bundle
+from tx.fhir.utils import bundle, unbundle
 # from tx.test.utils import bag_equal
 
 patient_id = "1000"
@@ -40,6 +40,21 @@ observation_resc2 = {
 
 condition_resc2 = {
     "resourceType": "Condition",
+    "subject": {
+        "reference": f"Patient/{patient_id2}"
+    }
+}
+
+medication_request_resc = {
+    "resourceType": "MedicationRequest",
+    "subject": {
+        "reference": f"Patient/{patient_id}"
+    }
+}
+
+
+medication_request_resc2 = {
+    "resourceType": "MedicationRequest",
     "subject": {
         "reference": f"Patient/{patient_id2}"
     }
@@ -217,6 +232,21 @@ def test_post_bundle_condition():
     finally:
         requests.delete(f"{php}/resource")
 
+def test_post_bundle_medication_request():
+
+    try:
+        resp1 = requests.post(f"{php}/Bundle", json=bundle([medication_request_resc, medication_request_resc2]))
+    
+        assert resp1.status_code == 200
+
+        resp2 = requests.get(f"{php}/MedicationRequest?patient={patient_id}")
+
+        assert resp2.status_code == 200
+        assert resp2.json() == bundle([medication_request_resc])
+
+    finally:
+        requests.delete(f"{php}/resource")
+
 config = {
     "title": "FHIR data provider",
     "pluginType": "f",
@@ -225,6 +255,42 @@ config = {
         "pluginSelectors": []
     }
 }
+
+def test_post_resouces():
+
+    try:
+        resp1 = requests.post(f"{php}/Patient", json=patient_resc)
+        resp1 = requests.post(f"{php}/Patient", json=patient_resc2)
+        resp1 = requests.post(f"{php}/Observation", json=observation_resc)
+        resp1 = requests.post(f"{php}/Observation", json=observation_resc2)
+        resp1 = requests.post(f"{php}/Condition", json=condition_resc)
+        resp1 = requests.post(f"{php}/Condition", json=condition_resc2)
+        resp1 = requests.post(f"{php}/MedicationRequest", json=medication_request_resc)
+        resp1 = requests.post(f"{php}/MedicationRequest", json=medication_request_resc2)
+        
+        resp1 = requests.post(f"{php}/resource", json={
+            "resourceTypes": ["Patient", "Observation", "Condition", "MedicationRequest"],
+            "pids": [patient_id, patient_id2]
+        })
+    
+        assert resp1.status_code == 200
+        assert set(resp1.json().keys()) == {"Patient", "Observation", "Condition", "MedicationRequest"}
+        assert len(unbundle(resp1.json()["Patient"]).value) == 2
+        assert patient_resc in unbundle(resp1.json()["Patient"]).value
+        assert patient_resc2 in unbundle(resp1.json()["Patient"]).value
+        assert len(unbundle(resp1.json()["Observation"]).value) == 2
+        assert observation_resc in unbundle(resp1.json()["Observation"]).value
+        assert observation_resc2 in unbundle(resp1.json()["Observation"]).value
+        assert len(unbundle(resp1.json()["Condition"]).value) == 2
+        assert condition_resc in unbundle(resp1.json()["Condition"]).value
+        assert condition_resc2 in unbundle(resp1.json()["Condition"]).value
+        assert len(unbundle(resp1.json()["MedicationRequest"]).value) == 2
+        assert medication_request_resc in unbundle(resp1.json()["MedicationRequest"]).value
+        assert medication_request_resc2 in unbundle(resp1.json()["MedicationRequest"]).value
+
+    finally:
+        requests.delete(f"{php}/resource")
+
 
 def test_config():
     resp = requests.get(f"{php}/config")
