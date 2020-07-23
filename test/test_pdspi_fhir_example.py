@@ -276,8 +276,6 @@ def test_post_resources():
         })
     
         assert resp1.status_code == 200
-        print(f"resp = {json.dumps(resp1.json(), indent=4)}")
-        sys.stdout.flush()
         patients = resp1.json()
         assert len(patients) == 2
         for patient in patients:
