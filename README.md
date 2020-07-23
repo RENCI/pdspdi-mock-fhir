@@ -4,7 +4,7 @@
 ### run
 
 ```
-docker-compose -f docker-compose.yml -f volume/docker-compose.yml up --build
+./run.sh
 ```
 
 ### test
