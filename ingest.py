@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 base_url, input_dir = sys.argv[1:]
 
-for root, dirs, files in os.walk(input_dir):
+for root, _, files in os.walk(input_dir, followlinks=True):
     for file in files:
         path = f"{root}/{file}"
         with open(path) as input_stream:
