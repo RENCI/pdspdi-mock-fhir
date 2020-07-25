@@ -1,10 +1,25 @@
 [![Build Status](https://travis-ci.com/RENCI/pdspi-fhir-example.svg?branch=master)](https://travis-ci.com/RENCI/pdspi-fhir-example)
 # pdspi-fhir-example
 
-### run
+### set up
+edit `tests/docker.env`
+
+`API_PORT` the port mapped for host
+
+### start
 
 ```
-./run.sh
+./up.sh
+```
+
+### stop
+```
+./down.sh
+```
+
+### ingest
+```
+PYTHONPATH=tx-utils/src python ingest.py <base_url> <input_dir>
 ```
 
 ### test
