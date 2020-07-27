@@ -8,6 +8,10 @@ import time
 import sys
 from tx.fhir.utils import bundle, unbundle
 import copy
+from .utils import getLogger
+
+
+logger = getLogger(__name__)
 
 
 mongodb_host = os.environ["MONGO_HOST"]
@@ -30,8 +34,7 @@ def update_patient(resource, retrieve_time):
     try:
         patient_id = resource["id"]
     except:
-        print(f"cannot find id in resource {resource}")
-        sys.stdout.flush()
+        logger.error(f"cannot find id in resource {resource}")
         return
     coll = mongo_client[mongo_database][PATIENT_COLL]
     res = coll.replace_one({"id": patient_id}, copy.deepcopy(resource), upsert=True)
@@ -41,8 +44,7 @@ def update_patient(resource, retrieve_time):
 def update_resource(resc_type, patient_id, bundle, retrieve_time):
     coll = mongo_client[mongo_database][resc_type]
     res = coll.delete_many({"subject.reference": f"Patient/{patient_id}"})
-    print(f"bundle={bundle}, copy.deepcopy(bundle)={copy.deepcopy(bundle)}")
-    sys.stdout.flush()
+    logger.debug(f"bundle={bundle}, copy.deepcopy(bundle)={copy.deepcopy(bundle)}")
     records = unbundle(copy.deepcopy(bundle)).value
     if len(records) > 0:
         coll.insert_many(records)
@@ -51,7 +53,7 @@ def update_resource(resc_type, patient_id, bundle, retrieve_time):
 
 def update_retrieve_time(resource_type, patient_id, curr_time):
     rt_coll = mongo_client[mongo_database][RETRIEVE_TIME_COLL]
-    print(f"inserting retrieve time for {resource_type} {patient_id} as {curr_time}")
+    logger.debug(f"inserting retrieve time for {resource_type} {patient_id} as {curr_time}")
     rt_coll.replace_one({"patient_id": patient_id, "resourceType": resource_type}, {"patient_id": patient_id, "resourceType": resource_type, "retrieve_time": curr_time}, upsert=True)
 
 
@@ -67,7 +69,7 @@ def get_retrieve_time(resource_type, patient_id):
 def get_patient(patient_id):
     curr_time = time.time()
     rt = get_retrieve_time("Patient", patient_id)
-    print(f"retrieve_time of {patient_id} is {rt}")
+    logger.debug(f"retrieve_time of {patient_id} is {rt}")
     if rt is None or curr_time - rt > cache_ttl:
         return None
     coll = mongo_client[mongo_database][PATIENT_COLL]
@@ -101,8 +103,7 @@ def post_resource(resource, retrieve_time):
     resc_type = resource["resourceType"]
     coll = mongo_client[mongo_database][resc_type]
     res = coll.insert_one(resource)
-    print(f"cache.post_resource: post resource {resource}")
-    sys.stdout.flush()
+    logger.debug(f"cache.post_resource: post resource {resource}")
     if resc_type == "Patient":
         patient_id = resource["id"]
     else:

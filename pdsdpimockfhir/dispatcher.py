@@ -11,9 +11,13 @@ import sys
 from urllib.parse import urlsplit
 from tx.fhir.utils import bundle, unbundle
 from tx.functional.either import Left, Right
+from .utils import getLogger
 
 
 fhir_server_url_base = os.environ.get("FHIR_SERVER_URL_BASE")
+
+
+logger = getLogger(__name__)
 
 
 def _get_patient(patient_id):
@@ -51,8 +55,7 @@ def _get_resource(resc_type, patient_id):
     elif fhir_server_url_base is not None and fhir_server_url_base != "":
         curr_time = time.time()
         resp = requests.get(f"{fhir_server_url_base}/{resc_type}?patient={patient_id}")
-        print(f"{fhir_server_url_base}/{resc_type}?patient={patient_id} => {resp.status_code}")
-        sys.stdout.flush()
+        logger.debug(f"{fhir_server_url_base}/{resc_type}?patient={patient_id} => {resp.status_code}")
         if resp.status_code == 404:
             return None
         else:
