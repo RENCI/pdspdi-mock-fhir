@@ -8,10 +8,10 @@ import time
 import sys
 from tx.fhir.utils import bundle, unbundle
 import copy
-from .utils import getLogger
+from tx.logging.utils import getLogger
 
 
-logger = getLogger(__name__)
+logger = getLogger(__name__, logging.INFO)
 
 
 mongodb_host = os.environ["MONGO_HOST"]

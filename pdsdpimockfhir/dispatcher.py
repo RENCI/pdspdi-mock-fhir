@@ -11,13 +11,13 @@ import sys
 from urllib.parse import urlsplit
 from tx.fhir.utils import bundle, unbundle
 from tx.functional.either import Left, Right
-from .utils import getLogger
+from tx.logging.utils import getLogger
+
+
+logger = getLogger(__name__, logging.INFO)
 
 
 fhir_server_url_base = os.environ.get("FHIR_SERVER_URL_BASE")
-
-
-logger = getLogger(__name__)
 
 
 def _get_patient(patient_id):
