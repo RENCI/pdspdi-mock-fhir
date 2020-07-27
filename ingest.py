@@ -4,9 +4,9 @@ import json
 import requests
 import logging
 from tx.fhir.utils import bundle, unbundle
+from tx.logging.utils import getLogger
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__, logging.INFO)
 
 base_url, input_dir = sys.argv[1:]
 
