@@ -30,7 +30,7 @@ resource_colls = [OBSERVATION_COLL, CONDITION_COLL, MEDICATION_REQUEST_COLL]
 mongo_client = MongoClient(mongodb_host, mongodb_port, username=mongo_username, password=mongo_password, authSource=mongo_database)
 
 # todo implement transation
-def update_patient(resource, retrieve_time):
+def update_patient(resource):
     try:
         patient_id = resource["id"]
     except:
@@ -38,45 +38,23 @@ def update_patient(resource, retrieve_time):
         return
     coll = mongo_client[mongo_database][PATIENT_COLL]
     res = coll.replace_one({"id": patient_id}, copy.deepcopy(resource), upsert=True)
-    update_retrieve_time("Patient", patient_id, retrieve_time)
 
 
-def update_resource(resc_type, patient_id, bundle, retrieve_time):
+def update_resource(resc_type, patient_id, bundle):
     coll = mongo_client[mongo_database][resc_type]
     res = coll.delete_many({"subject.reference": f"Patient/{patient_id}"})
     logger.debug(f"bundle={bundle}, copy.deepcopy(bundle)={copy.deepcopy(bundle)}")
     records = unbundle(copy.deepcopy(bundle)).value
     if len(records) > 0:
         coll.insert_many(records)
-    update_retrieve_time(resc_type, patient_id, retrieve_time)
         
 
-def update_retrieve_time(resource_type, patient_id, curr_time):
-    rt_coll = mongo_client[mongo_database][RETRIEVE_TIME_COLL]
-    logger.debug(f"inserting retrieve time for {resource_type} {patient_id} as {curr_time}")
-    rt_coll.replace_one({"patient_id": patient_id, "resourceType": resource_type}, {"patient_id": patient_id, "resourceType": resource_type, "retrieve_time": curr_time}, upsert=True)
-
-
-def get_retrieve_time(resource_type, patient_id):
-    rt_coll = mongo_client[mongo_database][RETRIEVE_TIME_COLL]
-    rt = rt_coll.find_one({"patient_id": patient_id, "resourceType": resource_type})
-    if rt is None:
-        return None
-    else:
-        return rt["retrieve_time"]
-
-
 def get_patient(patient_id):
-    curr_time = time.time()
-    rt = get_retrieve_time("Patient", patient_id)
-    logger.debug(f"retrieve_time of {patient_id} is {rt}")
-    if rt is None or curr_time - rt > cache_ttl:
-        return None
     coll = mongo_client[mongo_database][PATIENT_COLL]
     res = coll.find({"id": patient_id})
     records = list(res)
     if len(records) == 0:
-        raise RuntimeError(f"no patient with id {patient_id}")
+        return None
     elif len(records) > 1:
         raise RuntimeError(f"more than one patient with id {patient_id} {records}")
 
@@ -86,10 +64,6 @@ def get_patient(patient_id):
 
 
 def get_resource(resource_type, patient_id):
-    curr_time = time.time()
-    rt = get_retrieve_time(resource_type, patient_id)
-    if rt is None or curr_time - rt > cache_ttl:
-        return None
     coll = mongo_client[mongo_database][resource_type]
     res = coll.find({"subject.reference": f"Patient/{patient_id}"})
     records = list(res)
@@ -99,21 +73,16 @@ def get_resource(resource_type, patient_id):
     return bundle(records)
 
                     
-def post_resource(resource, retrieve_time):
+def post_resource(resource):
     resc_type = resource["resourceType"]
     coll = mongo_client[mongo_database][resc_type]
     res = coll.insert_one(resource)
     logger.debug(f"cache.post_resource: post resource {resource}")
-    if resc_type == "Patient":
-        patient_id = resource["id"]
-    else:
-        patient_id = resource["subject"]["reference"][8:]
-    update_retrieve_time(resc_type, patient_id, retrieve_time)  
 
 
-def post_bundle(bundle, retrieve_time):
+def post_bundle(bundle):
     for resc in unbundle(bundle).value:
-        post_resource(resc, retrieve_time)
+        post_resource(resc)
 
 
 def delete_resource():

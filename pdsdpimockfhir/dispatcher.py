@@ -26,13 +26,12 @@ def _get_patient(patient_id):
     if resc is not None:
         return resc
     elif fhir_server_url_base is not None and fhir_server_url_base != "":
-        curr_time = time.time()
         resp = requests.get(f"{fhir_server_url_base}/Patient/{patient_id}")
         if resp.status_code == 404:
             return None
         else:
             resc = resp.json()
-            cache.update_patient(resc, curr_time)
+            cache.update_patient(resc)
             return resc
     else:
         return None
@@ -53,7 +52,6 @@ def _get_resource(resc_type, patient_id):
     if bundle is not None:
         return bundle
     elif fhir_server_url_base is not None and fhir_server_url_base != "":
-        curr_time = time.time()
         resp = requests.get(f"{fhir_server_url_base}/{resc_type}?patient={patient_id}")
         logger.debug(f"{fhir_server_url_base}/{resc_type}?patient={patient_id} => {resp.status_code}")
         if resp.status_code == 404:
@@ -61,7 +59,7 @@ def _get_resource(resc_type, patient_id):
         else:
             bundle = resp.json()
             print(bundle)
-            cache.update_resource(resc_type, patient_id, bundle, curr_time)
+            cache.update_resource(resc_type, patient_id, bundle)
             print(bundle)
             sys.stdout.flush()
             return bundle
@@ -99,12 +97,12 @@ def get_resource(resource_name, patient_id):
 
                     
 def post_patient(resource):
-    cache.update_patient(resource, time.time())
+    cache.update_patient(resource)
     return "success", 200
     
 
 def post_resource(resource):
-    cache.post_resource(resource, time.time())
+    cache.post_resource(resource)
     return "success", 200
 
 
@@ -135,7 +133,7 @@ def _post_batch(batch):
 
 
 def post_bundle(bundle):
-    cache.post_bundle(bundle, time.time())
+    cache.post_bundle(bundle)
     return "success", 200
 
 
