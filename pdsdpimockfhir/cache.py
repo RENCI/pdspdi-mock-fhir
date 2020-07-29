@@ -80,9 +80,22 @@ def post_resource(resource):
     logger.debug(f"cache.post_resource: post resource {resource}")
 
 
+def post_resources(coll, resources):
+    coll = mongo_client[mongo_database][coll]
+    res = coll.insert_many(resources)
+
+
 def post_bundle(bundle):
-    for resc in unbundle(bundle).value:
-        post_resource(resc)
+    rescs = unbundle(bundle).value
+    x = {}
+    for resc in rescs:
+        resc_type = resc["resourceType"]
+        if resc_type in x:
+            x[resc_type].append(resc)
+        else:
+            x[resc_type] = [resc]
+    for coll, rescs in x.items():
+        post_resources(coll, rescs)
 
 
 def delete_resource():
