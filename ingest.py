@@ -69,17 +69,23 @@ def handle_path(path):
 
     logger.info(f"loading {path}")
     if not dry_run:
-        with open(path) as input_stream:
-            obj = json.load(input_stream)
-            rescs = unbundle(obj).value
-            nrescs = len(rescs)
-            logger.info(f"{nrescs} resources loaded")
-            maxlen = 1024
-            for i in range(0, nrescs, maxlen):
-                subrescs = rescs[i: min(i+maxlen, nrescs)]
-                subobj = bundle(subrescs)
-                logger.info(f"ingesting {path} {i}")
-                requests.post(f"{base_url}/Bundle", json=subobj)
+        try:
+            with open(path) as input_stream:
+                obj = json.load(input_stream)
+        except:
+            with open(path, encoding="latin-1") as input_stream:
+                obj = json.load(input_stream)
+
+
+        rescs = unbundle(obj).value
+        nrescs = len(rescs)
+        logger.info(f"{nrescs} resources loaded")
+        maxlen = 1024
+        for i in range(0, nrescs, maxlen):
+            subrescs = rescs[i: min(i+maxlen, nrescs)]
+            subobj = bundle(subrescs)
+            logger.info(f"ingesting {path} {i}")
+            requests.post(f"{base_url}/Bundle", json=subobj)
     else:
         logger.info(f"post {base_url}/Bundle")
 
