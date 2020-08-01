@@ -45,7 +45,7 @@ def delete_condition():
     return dispatcher.delete_condition()
 
 def post_resources(body):
-    return dispatcher.post_resources(body["resourceTypes"], body["pids"])
+    return dispatcher.post_resources(body["resourceTypes"], body["patientIds"])
 
 def post_batch(body):
     return dispatcher.post_batch(body)

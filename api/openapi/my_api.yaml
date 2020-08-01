@@ -30,13 +30,13 @@ paths:
               additionalProperties: false
               required:
                 - resourceTypes
-                - pids
+                - patientIds
               properties:
                 resourceTypes:
                   type: array
                   items:
                     type: string
-                pids:
+                patientIds:
                   type: array
                   items:
                     type: string

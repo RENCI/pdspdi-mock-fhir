@@ -272,7 +272,7 @@ def test_post_resources():
         
         resp1 = requests.post(f"{php}/resource", json={
             "resourceTypes": ["Patient", "Observation", "Condition", "MedicationRequest"],
-            "pids": [patient_id, patient_id2]
+            "patientIds": [patient_id, patient_id2]
         })
     
         assert resp1.status_code == 200
