@@ -19,15 +19,18 @@ mongodb_port = int(os.environ["MONGO_PORT"])
 mongo_database = os.environ["MONGO_DATABASE"]
 mongo_username = os.environ["MONGO_NON_ROOT_USERNAME"]
 mongo_password = os.environ["MONGO_NON_ROOT_PASSWORD"]
-cache_ttl = float(os.environ.get("CACHE_TTL", "inf"))
 PATIENT_COLL = "Patient"
 OBSERVATION_COLL = "Observation"
 CONDITION_COLL = "Condition"
 MEDICATION_REQUEST_COLL = "MedicationRequest"
-RETRIEVE_TIME_COLL = "RetrieveTime"
 resource_colls = [OBSERVATION_COLL, CONDITION_COLL, MEDICATION_REQUEST_COLL]
 
 mongo_client = MongoClient(mongodb_host, mongodb_port, username=mongo_username, password=mongo_password, authSource=mongo_database)
+
+mongo_client[mongo_database][PATIENT_COLL].create_index([("id", 1)])
+
+for coll in resource_colls:
+    mongo_client[mongo_database][coll].create_index([("subject.reference", 1)])
 
 # todo implement transation
 def update_patient(resource):
@@ -103,5 +106,4 @@ def delete_resource():
     db[PATIENT_COLL].remove()
     for resource_coll in resource_colls:
         db[resource_coll].remove()
-    db[RETRIEVE_TIME_COLL].remove()
 
