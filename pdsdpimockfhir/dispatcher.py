@@ -67,6 +67,7 @@ def _get_resource(resc_type, patient_id):
 def post_resources(resc_types, patient_ids):
     patients = []
     for patient_id in patient_ids:
+        logger.info(f"processing patient {patient_id}")
         requests = []
         for resc_type in resc_types:
             if resc_type == "Patient":
@@ -111,6 +112,7 @@ def _post_batch(batch):
     def handle_requests(requests):
         rescs = []
         for request in requests:
+            logger.info(f"processing request {request}")
             method = request["method"]
             url = request["url"]
             result = urlsplit(url)
