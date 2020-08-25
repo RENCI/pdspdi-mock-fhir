@@ -47,24 +47,21 @@ def get_patient(patient_id):
         
 
 def _get_resource(resc_type, patient_id):
-    bundle = cache.get_resource(resc_type, patient_id)
+    resources = cache.get_resource(resc_type, patient_id)
 
-    if bundle is not None:
-        return bundle
+    if resources is not None and resources["entry"] != []:
+        return resources
     elif fhir_server_url_base is not None and fhir_server_url_base != "":
         resp = requests.get(f"{fhir_server_url_base}/{resc_type}?patient={patient_id}")
         logger.debug(f"{fhir_server_url_base}/{resc_type}?patient={patient_id} => {resp.status_code}")
         if resp.status_code == 404:
             return None
         else:
-            bundle = resp.json()
-            print(bundle)
-            cache.update_resource(resc_type, patient_id, bundle)
-            print(bundle)
-            sys.stdout.flush()
-            return bundle
+            resources = resp.json()
+            cache.update_resource(resc_type, patient_id, resources)
+            return resources
     else:
-        return {"resourceType":"Bundle", "entry": []}
+        return bundle([])
 
     
 def post_resources(resc_types, patient_ids):
