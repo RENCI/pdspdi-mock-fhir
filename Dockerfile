@@ -4,7 +4,7 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 RUN apk add --no-cache gcc musl-dev libffi-dev file make
-RUN pip3 install --no-cache-dir flask pymongo gunicorn[gevent]==19.9.0 connexion[swagger-ui] requests flask-cors tx-functional python-dateutil
+RUN pip3 install --no-cache-dir flask pymongo gunicorn[gevent]==19.9.0 connexion[swagger-ui] requests flask-cors tx-functional python-dateutil joblib==0.16.0
 
 COPY api /usr/src/app/api
 COPY pdsdpimockfhir /usr/src/app/pdsdpimockfhir

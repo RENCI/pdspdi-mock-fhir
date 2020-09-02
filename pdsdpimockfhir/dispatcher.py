@@ -8,11 +8,14 @@ import time
 import pdsdpimockfhir.cache as cache
 import requests
 import sys
+from joblib import Parallel, delayed
 from urllib.parse import urlsplit
 from tx.fhir.utils import bundle, unbundle
 from tx.functional.either import Left, Right
+import tx.functional.maybe as maybe
+from tx.functional.utils import identity
 from tx.logging.utils import getLogger
-
+import multiprocessing
 
 logger = getLogger(__name__, logging.INFO)
 
@@ -66,7 +69,7 @@ def _get_resource(resc_type, patient_id):
     
 def post_resources(resc_types, patient_ids):
     patients = []
-    for patient_id in patient_ids:
+    def proc(patient_id):
         logger.info(f"processing patient {patient_id}")
         requests = []
         for resc_type in resc_types:
@@ -82,7 +85,12 @@ def post_resources(resc_types, patient_ids):
                 })
         batch = bundle(requests, "batch")
         patient = _post_batch(batch).value
-        patients.append(patient)
+        return patient
+
+
+
+    n_jobs = maybe.from_python(os.environ.get("N_JOBS")).bind(int).rec(identity, multiprocessing.cpu_count())
+    patients = Parallel(n_jobs=n_jobs)(delayed(proc)(patient_id) for patient_id in patient_ids)
     return patients                
 
 
