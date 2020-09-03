@@ -8,7 +8,6 @@ import time
 import pdsdpimockfhir.cache as cache
 import requests
 import sys
-from joblib import Parallel, delayed
 from urllib.parse import urlsplit
 from tx.fhir.utils import bundle, unbundle
 from tx.functional.either import Left, Right
@@ -17,6 +16,7 @@ from tx.functional.utils import identity
 from tx.logging.utils import getLogger
 import multiprocessing
 from multiprocessing import Process, Manager
+from multiprocessing.pool import Pool
 from tempfile import mkstemp
 from functools import partial
 import json
@@ -71,9 +71,7 @@ def _get_resource(resc_type, patient_id):
         return bundle([])
 
     
-def post_resources(resc_types, patient_ids):
-    patients = []
-    def proc(p, patient_id):
+def proc(q, resc_types, patient_id):
         index, patient_id = patient_id
         logger.info(f"processing patient {index} {patient_id}")
         requests = []
@@ -92,7 +90,13 @@ def post_resources(resc_types, patient_ids):
         patient = _post_batch(batch).value
         q.put(patient)
 
+        
+def post_resources(resc_types, patient_ids):
+    patients = []
+
     n_jobs = maybe.from_python(os.environ.get("N_JOBS")).bind(int).rec(identity, multiprocessing.cpu_count())
+
+    pp = Pool(n_jobs)
 
     def save_to_file(tmpfile, q):
         with open(tmpfile, 'w') as out:
@@ -116,8 +120,10 @@ def post_resources(resc_types, patient_ids):
         try:
             p = Process(target=save_to_file, args=(tmpfile, q))
             p.start()
-            Parallel(n_jobs=n_jobs)(delayed(partial(proc, q))(patient_id) for patient_id in enumerate(patient_ids))
+            list(pp.imap_unordered(partial(proc, q, resc_types), enumerate(patient_ids)))
             q.put(None)
+            pp.close()
+            pp.join()
             p.join()
         
             logger.info(f"finished processing patients")
