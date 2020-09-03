@@ -91,6 +91,7 @@ def post_resources(resc_types, patient_ids):
 
     n_jobs = maybe.from_python(os.environ.get("N_JOBS")).bind(int).rec(identity, multiprocessing.cpu_count())
     patients = Parallel(n_jobs=n_jobs)(delayed(proc)(patient_id) for patient_id in patient_ids)
+    logger.info(f"finished processing patients")
     return patients                
 
 
