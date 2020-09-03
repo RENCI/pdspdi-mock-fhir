@@ -74,7 +74,8 @@ def _get_resource(resc_type, patient_id):
 def post_resources(resc_types, patient_ids):
     patients = []
     def proc(p, patient_id):
-        logger.info(f"processing patient {patient_id}")
+        index, patient_id = patient_id
+        logger.info(f"processing patient {index} {patient_id}")
         requests = []
         for resc_type in resc_types:
             if resc_type == "Patient":
@@ -115,7 +116,7 @@ def post_resources(resc_types, patient_ids):
         try:
             p = Process(target=save_to_file, args=(tmpfile, q))
             p.start()
-            Parallel(n_jobs=n_jobs)(delayed(partial(proc, q))(patient_id) for patient_id in patient_ids)
+            Parallel(n_jobs=n_jobs)(delayed(partial(proc, q))(patient_id) for patient_id in enumerate(patient_ids))
             q.put(None)
             p.join()
         
