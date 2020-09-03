@@ -12,6 +12,6 @@ COPY tx-utils/src /usr/src/app
 
 EXPOSE 8080
 
-ENTRYPOINT ["gunicorn"]
+ENTRYPOINT ["gunicorn", "-b", "0.0.0.0:8080", "--error-logfile", "-", "--capture-output", "api.server:create_app()"]
 
-CMD ["-w", "4", "-b", "0.0.0.0:8080", "--error-logfile", "-", "--capture-output", "-t", "100000", "api.server:create_app()"]
+CMD ["-w", "4", "-t", "100000"]
