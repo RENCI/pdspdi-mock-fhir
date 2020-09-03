@@ -88,7 +88,7 @@ def proc(q, resc_types, patient_id):
                 })
         batch = bundle(requests, "batch")
         patient = _post_batch(batch).value
-        q.put(patient)
+        q.put(json.dumps(patient))
 
         
 def post_resources(resc_types, patient_ids):
@@ -110,7 +110,7 @@ def post_resources(resc_types, patient_ids):
                     first = False
                 else:
                     out.write(",\n")
-                out.write(json.dumps(val))
+                out.write(val)
             out.write("]\n")
 
     with Manager() as m:
