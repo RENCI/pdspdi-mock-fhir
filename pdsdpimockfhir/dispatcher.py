@@ -1,7 +1,7 @@
 import os
 import copy
 from pymongo import MongoClient
-from flask import Response
+from flask import Response, send_file
 from bson.json_util import dumps
 import logging
 import time
@@ -16,6 +16,10 @@ import tx.functional.maybe as maybe
 from tx.functional.utils import identity
 from tx.logging.utils import getLogger
 import multiprocessing
+from multiprocessing import Process, Manager
+from tempfile import mkstemp
+from functools import partial
+import json
 
 logger = getLogger(__name__, logging.INFO)
 
@@ -69,7 +73,7 @@ def _get_resource(resc_type, patient_id):
     
 def post_resources(resc_types, patient_ids):
     patients = []
-    def proc(patient_id):
+    def proc(p, patient_id):
         logger.info(f"processing patient {patient_id}")
         requests = []
         for resc_type in resc_types:
@@ -85,14 +89,41 @@ def post_resources(resc_types, patient_ids):
                 })
         batch = bundle(requests, "batch")
         patient = _post_batch(batch).value
-        return patient
-
-
+        q.put(patient)
 
     n_jobs = maybe.from_python(os.environ.get("N_JOBS")).bind(int).rec(identity, multiprocessing.cpu_count())
-    patients = Parallel(n_jobs=n_jobs)(delayed(proc)(patient_id) for patient_id in patient_ids)
-    logger.info(f"finished processing patients")
-    return patients                
+
+    def save_to_file(tmpfile, q):
+        with open(tmpfile, 'w') as out:
+            first = True
+            out.write("[\n")
+            while True:
+                val = q.get()
+                if val is None:
+                    break
+                if first:
+                    first = False
+                else:
+                    out.write(",\n")
+                out.write(json.dumps(val))
+            out.write("]\n")
+
+    with Manager() as m:
+        q = m.Queue()
+        fd, tmpfile = mkstemp()
+        os.close(fd)
+        try:
+            p = Process(target=save_to_file, args=(tmpfile, q))
+            p.start()
+            Parallel(n_jobs=n_jobs)(delayed(partial(proc, q))(patient_id) for patient_id in patient_ids)
+            q.put(None)
+            p.join()
+        
+            logger.info(f"finished processing patients")
+            return send_file(tmpfile)
+        except:
+            os.remove(tmpfile)
+            raise
 
 
 def get_resource(resource_name, patient_id):
