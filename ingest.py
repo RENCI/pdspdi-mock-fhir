@@ -67,7 +67,7 @@ def timeit(method):
 def handle_path(path):
     logger = getLogger(f"{__name__}{os.getpid()}", logging.INFO)
 
-    logger.info(f"loading {path}")
+    logger.debug(f"loading {path}")
     if not dry_run:
         try:
             with open(path) as input_stream:
@@ -79,15 +79,15 @@ def handle_path(path):
 
         rescs = unbundle(obj).value
         nrescs = len(rescs)
-        logger.info(f"{nrescs} resources loaded")
+        logger.debug(f"{nrescs} resources loaded")
         maxlen = 1024
         for i in range(0, nrescs, maxlen):
             subrescs = rescs[i: min(i+maxlen, nrescs)]
             subobj = bundle(subrescs)
-            logger.info(f"ingesting {path} {i}")
+            logger.debug(f"ingesting {path} {i}")
             requests.post(f"{base_url}/Bundle", json=subobj)
     else:
-        logger.info(f"post {base_url}/Bundle")
+        logger.debug(f"post {base_url}/Bundle")
 
 with tqdm_joblib(tqdm(total=len(paths))) as progress_bar:
     Parallel(n_jobs=num_threads)(delayed(handle_path)(path) for path in paths)
