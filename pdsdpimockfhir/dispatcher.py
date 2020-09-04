@@ -83,8 +83,7 @@ def post_resources(resc_types, patient_ids):
         with open(output_file, "w") as out:
             first = True
             for patient_id in patient_ids:
-                index, patient_id = patient_id
-                logger.info(f"processing patient {index} {patient_id}")
+                logger.info(f"processing patient {patient_id}")
                 requests = []
                 for resc_type in resc_types:
                     if resc_type == "Patient":
@@ -130,7 +129,7 @@ def post_resources(resc_types, patient_ids):
     with Manager() as m:
         output_files = []
         processes = []
-        ids = list(enumerate(patient_ids))
+        ids = list(patient_ids)
         ids_len = len(ids)
         chunk_size = int(ceil(ids_len / n_jobs))
         
