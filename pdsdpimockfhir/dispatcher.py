@@ -111,6 +111,7 @@ def post_resources(resc_types, patient_ids):
             out.write("[\n".encode())
 
             for input_file in input_files:
+                logger.info(f"merging {input_file}")
                 if os.stat(input_file).st_size == 0:
                     continue
 
