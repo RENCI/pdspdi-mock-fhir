@@ -106,21 +106,25 @@ def post_resources(resc_types, patient_ids):
                 out.write(json.dumps(patient))
         
     def merge_files(tmpfile, input_files):
-        with open(tmpfile, 'w') as out:
+        with open(tmpfile, 'wb') as out:
             first = True
-            out.write("[\n")
+            out.write("[\n".encode())
 
             for input_file in input_files:
-                with open(input_file) as inp:
-                    content = inp.read()
-                    if content == "":
-                        continue
-                    if first:
-                        first = False
-                    else:
-                        out.write(",\n")
-                    out.write(content)
-            out.write("]\n")
+                if os.stat(input_file).st_size == 0:
+                    continue
+
+                if first:
+                    first = False
+                else:
+                    out.write(",\n".encode())
+                with open(input_file, "rb") as inp:
+                    while True:
+                        content = inp.read(4*1024*1024)
+                        if content == b"":
+                            break
+                        out.write(content)
+            out.write("]\n".encode())
 
     with Manager() as m:
         output_files = []
