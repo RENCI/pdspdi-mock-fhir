@@ -120,7 +120,8 @@ def post_resources(resc_types, patient_ids):
         try:
             p = Process(target=save_to_file, args=(tmpfile, q))
             p.start()
-            list(pp.imap_unordered(partial(proc, q, resc_types), enumerate(patient_ids)))
+            for _ in pp.imap_unordered(partial(proc, q, resc_types), enumerate(patient_ids), 16):
+                pass
             q.put(None)
             pp.close()
             pp.join()
