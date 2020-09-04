@@ -8,6 +8,7 @@ import time
 import pdsdpimockfhir.cache as cache
 import requests
 import sys
+from math import ceil
 from urllib.parse import urlsplit
 from tx.fhir.utils import bundle, unbundle
 from tx.functional.either import Left, Right
@@ -71,24 +72,6 @@ def _get_resource(resc_type, patient_id):
         return bundle([])
 
     
-def proc(q, resc_types, patient_id):
-        index, patient_id = patient_id
-        logger.info(f"processing patient {index} {patient_id}")
-        requests = []
-        for resc_type in resc_types:
-            if resc_type == "Patient":
-                requests.append({
-                    "url": f"/Patient/{patient_id}",
-                    "method": "GET"
-                })
-            else:
-                requests.append({
-                    "url": f"/{resc_type}?patient={patient_id}",
-                    "method": "GET"
-                })
-        batch = bundle(requests, "batch")
-        patient = _post_batch(batch).value
-        q.put(json.dumps(patient))
 
         
 def post_resources(resc_types, patient_ids):
@@ -96,40 +79,78 @@ def post_resources(resc_types, patient_ids):
 
     n_jobs = maybe.from_python(os.environ.get("N_JOBS")).bind(int).rec(identity, multiprocessing.cpu_count())
 
-    pp = Pool(n_jobs)
-
-    def save_to_file(tmpfile, q):
-        with open(tmpfile, 'w') as out:
+    def proc(output_file, resc_types, patient_ids):
+        with open(output_file, "w") as out:
             first = True
-            out.write("[\n")
-            while True:
-                val = q.get()
-                if val is None:
-                    break
+            for patient_id in patient_ids:
+                index, patient_id = patient_id
+                logger.info(f"processing patient {index} {patient_id}")
+                requests = []
+                for resc_type in resc_types:
+                    if resc_type == "Patient":
+                        requests.append({
+                            "url": f"/Patient/{patient_id}",
+                            "method": "GET"
+                        })
+                    else:
+                        requests.append({
+                            "url": f"/{resc_type}?patient={patient_id}",
+                            "method": "GET"
+                        })
+                batch = bundle(requests, "batch")
+                patient = _post_batch(batch).value
                 if first:
                     first = False
                 else:
                     out.write(",\n")
-                out.write(val)
+                out.write(json.dumps(patient))
+        
+    def merge_files(tmpfile, input_files):
+        with open(tmpfile, 'w') as out:
+            first = True
+            out.write("[\n")
+
+            for input_file in input_files:
+                with open(input_file) as inp:
+                    content = inp.read()
+                    if content == "":
+                        continue
+                    if first:
+                        first = False
+                    else:
+                        out.write(",\n")
+                    out.write(content)
             out.write("]\n")
 
     with Manager() as m:
-        q = m.Queue()
-        fd, tmpfile = mkstemp()
-        os.close(fd)
-        try:
-            p = Process(target=save_to_file, args=(tmpfile, q))
-            p.start()
-            for _ in pp.imap_unordered(partial(proc, q, resc_types), enumerate(patient_ids), 16):
-                pass
-            q.put(None)
-            pp.close()
-            pp.join()
-            p.join()
+        output_files = []
+        processes = []
+        ids = list(enumerate(patient_ids))
+        ids_len = len(ids)
+        chunk_size = int(ceil(ids_len / n_jobs))
         
+        try:
+            for i in range(n_jobs):
+                fd, output_file = mkstemp()
+                os.close(fd)
+                output_files.append(output_file)
+                
+                p = Process(target=proc, args=(output_file, resc_types, ids[min(ids_len, i * chunk_size): min(ids_len, (i + 1) * chunk_size)]))
+                p.start()
+                processes.append(p)
+                
+            for p in processes:
+                p.join()
+                
+            fd, tmpfile = mkstemp()
+            os.close(fd)
+            merge_files(tmpfile, output_files)
             logger.info(f"finished processing patients")
+
             return send_file(tmpfile)
         except:
+            for output_file in output_files:
+                os.remove(output_file)
             os.remove(tmpfile)
             raise
 
