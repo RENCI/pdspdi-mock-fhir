@@ -152,11 +152,10 @@ def post_resources(resc_types, patient_ids):
             logger.info(f"finished processing patients")
 
             return send_file(tmpfile)
-        except:
+        finally:
             for output_file in output_files:
                 os.remove(output_file)
             os.remove(tmpfile)
-            raise
 
 
 def get_resource(resource_name, patient_id):
