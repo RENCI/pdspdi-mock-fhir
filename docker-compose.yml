@@ -24,6 +24,9 @@ services:
       MONGO_NON_ROOT_USERNAME: $MONGO_NON_ROOT_USERNAME
       MONGO_NON_ROOT_PASSWORD: $MONGO_NON_ROOT_PASSWORD
       FHIR_SERVER_URL_BASE: $FHIR_SERVER_URL_BASE
+      OUTPUT_DIR: /shared
+    volumes:
+      - $SHARED_DIR:/shared
     ports:
       - $API_PORT:8080
 

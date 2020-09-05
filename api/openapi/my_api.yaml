@@ -40,6 +40,8 @@ paths:
                   type: array
                   items:
                     type: string
+                outputFile:
+                  type: string
       responses:
         200:
           description: success operation

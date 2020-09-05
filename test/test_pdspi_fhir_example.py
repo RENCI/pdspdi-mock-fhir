@@ -3,6 +3,7 @@ import time
 from tx.fhir.utils import bundle, unbundle
 import sys
 import json
+import os.path
 # from tx.test.utils import bag_equal
 
 patient_id = "1000"
@@ -277,6 +278,39 @@ def test_post_resources():
     
         assert resp1.status_code == 200
         patients = resp1.json()
+        assert len(patients) == 2
+        for patient in patients:
+            assert patient["resourceType"] == "Bundle"
+            assert patient["type"] == "batch-response"
+            assert set(map(lambda x: x["resourceType"], unbundle(patient).value)) == {"Patient", "Bundle"}
+
+    finally:
+        requests.delete(f"{php}/resource")
+
+
+def test_post_resources_output_to_file():
+
+    try:
+        resp1 = requests.post(f"{php}/Patient", json=patient_resc)
+        resp1 = requests.post(f"{php}/Patient", json=patient_resc2)
+        resp1 = requests.post(f"{php}/Observation", json=observation_resc)
+        resp1 = requests.post(f"{php}/Observation", json=observation_resc2)
+        resp1 = requests.post(f"{php}/Condition", json=condition_resc)
+        resp1 = requests.post(f"{php}/Condition", json=condition_resc2)
+        resp1 = requests.post(f"{php}/MedicationRequest", json=medication_request_resc)
+        resp1 = requests.post(f"{php}/MedicationRequest", json=medication_request_resc2)
+        
+        resp1 = requests.post(f"{php}/resource", json={
+            "resourceTypes": ["Patient", "Observation", "Condition", "MedicationRequest"],
+            "patientIds": [patient_id, patient_id2],
+            "outputFile": "outputfile.json"
+        })
+    
+        assert resp1.status_code == 200
+
+        outputfile = os.path.join(os.environ.get("OUTPUT_DIR"), resp1.json()["$ref"])
+        with open(outputfile) as f:
+            patients = json.load(f)
         assert len(patients) == 2
         for patient in patients:
             assert patient["resourceType"] == "Bundle"

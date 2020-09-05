@@ -21,6 +21,8 @@ from multiprocessing.pool import Pool
 from tempfile import mkstemp
 from functools import partial
 import json
+import os.path
+from pathvalidate import validate_filename
 
 logger = getLogger(__name__, logging.INFO)
 
@@ -73,8 +75,9 @@ def _get_resource(resc_type, patient_id):
 
     
 
-        
-def post_resources(resc_types, patient_ids):
+output_dir = os.environ.get("OUTPUT_DIR", "/tmp")
+
+def post_resources(resc_types, patient_ids, output_name):
     patients = []
 
     n_jobs = maybe.from_python(os.environ.get("N_JOBS")).bind(int).rec(identity, multiprocessing.cpu_count())
@@ -105,6 +108,7 @@ def post_resources(resc_types, patient_ids):
                 out.write(json.dumps(patient))
         
     def merge_files(tmpfile, input_files):
+        logger.info(f"merge file target {tmpfile}")
         with open(tmpfile, 'wb') as out:
             first = True
             out.write("[\n".encode())
@@ -146,16 +150,27 @@ def post_resources(resc_types, patient_ids):
             for p in processes:
                 p.join()
                 
-            fd, tmpfile = mkstemp()
-            os.close(fd)
+            if output_name is None:
+                fd, tmpfile = mkstemp()
+                os.close(fd)
+            else:
+                validate_filename(output_name)
+                tmpfile = os.path.join(output_dir, output_name)
+                
             merge_files(tmpfile, output_files)
             logger.info(f"finished processing patients")
 
-            return send_file(tmpfile)
+            if output_name is None:
+                return send_file(tmpfile)
+            else:
+                return {
+                    "$ref": output_name
+                }
         finally:
             for output_file in output_files:
                 os.remove(output_file)
-            os.remove(tmpfile)
+            if output_name is None:
+                os.remove(tmpfile)
 
 
 def get_resource(resource_name, patient_id):

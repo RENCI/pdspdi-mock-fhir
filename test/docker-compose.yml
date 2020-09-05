@@ -5,5 +5,9 @@ services:
       context: .
       dockerfile: test/Dockerfile
     command: ["-s", "-x", "-vv"] # , "-k", "test_post_resources"]
+    environment:
+      OUTPUT_DIR: /shared
+    volumes:
+      - $SHARED_DIR:/shared
     depends_on:
       - pdspi-fhir-example
