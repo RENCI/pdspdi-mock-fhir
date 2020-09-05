@@ -299,18 +299,23 @@ def test_post_resources_output_to_file():
         resp1 = requests.post(f"{php}/Condition", json=condition_resc2)
         resp1 = requests.post(f"{php}/MedicationRequest", json=medication_request_resc)
         resp1 = requests.post(f"{php}/MedicationRequest", json=medication_request_resc2)
-        
-        resp1 = requests.post(f"{php}/resource", json={
+
+        files = [patient_id, patient_id2]
+        resp = requests.post(f"{php}/resource", json={
             "resourceTypes": ["Patient", "Observation", "Condition", "MedicationRequest"],
-            "patientIds": [patient_id, patient_id2],
-            "outputFile": "outputfile.json"
+            "patientIds": files,
+            "outputFile": "outputname"
         })
     
-        assert resp1.status_code == 200
+        assert resp.status_code == 200
 
-        outputfile = os.path.join(os.environ.get("OUTPUT_DIR"), resp1.json()["$ref"])
-        with open(outputfile) as f:
-            patients = json.load(f)
+
+        assert "$ref" in resp.json()
+        name = resp.json()["$ref"]
+        patients = []
+        for f in files:
+            with open(os.path.join(os.environ.get("OUTPUT_DIR"), name, f + ".json")) as out:
+                patients.append(json.load(out))
         assert len(patients) == 2
         for patient in patients:
             assert patient["resourceType"] == "Bundle"

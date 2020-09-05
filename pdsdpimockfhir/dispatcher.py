@@ -18,11 +18,12 @@ from tx.logging.utils import getLogger
 import multiprocessing
 from multiprocessing import Process, Manager
 from multiprocessing.pool import Pool
-from tempfile import mkstemp
+from tempfile import mkdtemp
 from functools import partial
 import json
 import os.path
 from pathvalidate import validate_filename
+import shutil
 
 logger = getLogger(__name__, logging.INFO)
 
@@ -82,95 +83,69 @@ def post_resources(resc_types, patient_ids, output_name):
 
     n_jobs = maybe.from_python(os.environ.get("N_JOBS")).bind(int).rec(identity, multiprocessing.cpu_count())
 
-    def proc(output_file, resc_types, patient_ids):
-        with open(output_file, "w") as out:
-            first = True
-            for patient_id in patient_ids:
-                logger.info(f"processing patient {patient_id}")
-                requests = []
-                for resc_type in resc_types:
-                    if resc_type == "Patient":
-                        requests.append({
-                            "url": f"/Patient/{patient_id}",
-                            "method": "GET"
-                        })
-                    else:
-                        requests.append({
-                            "url": f"/{resc_type}?patient={patient_id}",
-                            "method": "GET"
-                        })
-                batch = bundle(requests, "batch")
-                patient = _post_batch(batch).value
-                if first:
-                    first = False
+    def proc(output_dir, resc_types, patient_ids):
+        for patient_id in patient_ids:
+            logger.info(f"processing patient {patient_id}")
+            requests = []
+            for resc_type in resc_types:
+                if resc_type == "Patient":
+                    requests.append({
+                        "url": f"/Patient/{patient_id}",
+                        "method": "GET"
+                    })
                 else:
-                    out.write(",\n")
-                out.write(json.dumps(patient))
+                    requests.append({
+                        "url": f"/{resc_type}?patient={patient_id}",
+                        "method": "GET"
+                    })
+            batch = bundle(requests, "batch")
+            patient = _post_batch(batch).value
+            with open(os.path.join(output_dir, patient_id + ".json"), "w") as out:
+                json.dump(patient, out)
         
-    def merge_files(tmpfile, input_files):
-        logger.info(f"merge file target {tmpfile}")
-        with open(tmpfile, 'wb') as out:
-            first = True
-            out.write("[\n".encode())
-
-            for input_file in input_files:
+    def merge_files(input_dir, patient_ids):
+        data = []
+        for patient_id in patient_ids:
+            input_file = os.path.join(input_dir, patient_id+".json")
+            with open(input_file) as inp:
                 logger.info(f"merging {input_file}")
-                if os.stat(input_file).st_size == 0:
-                    continue
-
-                if first:
-                    first = False
-                else:
-                    out.write(",\n".encode())
-                with open(input_file, "rb") as inp:
-                    while True:
-                        content = inp.read(4*1024*1024)
-                        if content == b"":
-                            break
-                        out.write(content)
-            out.write("]\n".encode())
+                data.append(json.load(inp))
+        return data
 
     with Manager() as m:
-        output_files = []
         processes = []
         ids = list(patient_ids)
         ids_len = len(ids)
         chunk_size = int(ceil(ids_len / n_jobs))
         
+        if output_name is None:
+            tmpdir = mkdtemp()
+        else:
+            validate_filename(output_name)
+            tmpdir = os.path.join(output_dir, output_name)
+            os.makedirs(tmpdir, exist_ok=True)
+                
         try:
             for i in range(n_jobs):
-                fd, output_file = mkstemp()
-                os.close(fd)
-                output_files.append(output_file)
-                
-                p = Process(target=proc, args=(output_file, resc_types, ids[min(ids_len, i * chunk_size): min(ids_len, (i + 1) * chunk_size)]))
+                p = Process(target=proc, args=(tmpdir, resc_types, ids[min(ids_len, i * chunk_size): min(ids_len, (i + 1) * chunk_size)]))
                 p.start()
                 processes.append(p)
                 
             for p in processes:
                 p.join()
                 
-            if output_name is None:
-                fd, tmpfile = mkstemp()
-                os.close(fd)
-            else:
-                validate_filename(output_name)
-                tmpfile = os.path.join(output_dir, output_name)
                 
-            merge_files(tmpfile, output_files)
             logger.info(f"finished processing patients")
 
             if output_name is None:
-                return send_file(tmpfile)
+                return merge_files(tmpdir, patient_ids)
             else:
                 return {
                     "$ref": output_name
                 }
         finally:
-            for output_file in output_files:
-                os.remove(output_file)
             if output_name is None:
-                os.remove(tmpfile)
+                shutil.rmtree(tmpdir)
 
 
 def get_resource(resource_name, patient_id):
