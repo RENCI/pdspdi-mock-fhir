@@ -1,16 +1,22 @@
 import sys
+
+sys.path.append("tx-utils/src")
+sys.path.append("tx-pcornet-to-fhir")
+
+import argparse
 import os
 import json
 import requests
 import logging
 from tx.fhir.utils import bundle, unbundle
 from tx.logging.utils import getLogger
+from convert import mapping_pcornet_to_fhir
 from joblib import Parallel, delayed
-from functools import partial
 import contextlib
 import joblib
 from tqdm import tqdm
 import time
+
 
 @contextlib.contextmanager
 def tqdm_joblib(tqdm_object):
@@ -31,12 +37,14 @@ def tqdm_joblib(tqdm_object):
         tqdm_object.close()
         
 
-import argparse
-
-parser = argparse.ArgumentParser(description='Process some integers.')
+parser = argparse.ArgumentParser(description='Process arguments.')
 parser.add_argument('--nthreads', type=int, default=4, help='number of threads')
 parser.add_argument('--base_url', type=str, required=True, help='base url of fhir plugin')
-parser.add_argument('--input_dir', type=str, required=True, help='input dir of the files containing fhir bundles')
+parser.add_argument('--input_dir', type=str, required=True, help='input dir of the files containing data to be ingested')
+parser.add_argument('--input_data_format', type=str, default='fhir', help='input data format. Only fhir and pcori '
+                                                                          'are supported. The default is fhir bundles.')
+parser.add_argument('--output_dir', type=str, default='output', help='Output directory for converted fhir bundles for '
+                                                                     'input data format other than fhir, e.g., pcori')
 parser.add_argument('--dry_run', action='store_true', default=False, help='dry run without actually ingesting data')
 
 args = parser.parse_args()
@@ -44,9 +52,16 @@ args = parser.parse_args()
 threads = args.nthreads
 base_url = args.base_url
 input_dir = args.input_dir
+input_data_format = args.input_data_format
+output_dir = args.output_dir
 dry_run = args.dry_run
 
 num_threads = int(threads)
+
+if input_data_format and input_data_format.lower() == 'pcori':
+    # input data is pcori data. Need to convert input data to fhir bundles first before ingestion
+    mapping_pcornet_to_fhir(input_dir, output_dir, 10000)
+    input_dir = output_dir
 
 paths = [f"{root}/{file}" for root, _, files in os.walk(input_dir, followlinks=True) for file in files]
 
