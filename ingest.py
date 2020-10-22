@@ -1,8 +1,3 @@
-import sys
-
-sys.path.append("tx-utils/src")
-sys.path.append("tx-pcornet-to-fhir")
-
 import argparse
 import os
 import json
