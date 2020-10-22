@@ -7,3 +7,6 @@
 [submodule "tx-persistence"]
 	path = tx-persistence
 	url = https://github.com/RENCI/tx-persistence
+[submodule "tx-pcornet-to-fhir"]
+	path = tx-pcornet-to-fhir
+	url = https://github.com/RENCI/tx-pcornet-to-fhir
