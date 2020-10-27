@@ -21,7 +21,8 @@ edit `tests/docker.env`
 
 - Prerequisites 
   	- Python 3.8 or above
-  	- Pandas, tx-functional, joblib, and tqdm libraries need to be installed in the python 3.8 environment where ingest.py runs.
+  	- `pip install` these libraries: Pandas, tx-functional, joblib, and tqdm libraries need to be installed in the python 3.8 environment where ingest.py runs.
+    - Make sure the FHIR server is running first (./up.sh)
 - To ingest fhir data, run:
 
 ```
@@ -32,6 +33,10 @@ PYTHONPATH=tx-utils/src python ingest.py <base_url> <input_dir>
 
   ```
   PYTHONPATH=tx-utils/src:tx-pcornet-to-fhir/ python ingest.py --base_url <base_url> --input_dir <pcori_data_input_dir> --input_data_format pcori --output_dir <pcori_data_output_dir>
+  ```
+  For example: 
+  ```
+   PYTHONPATH=tx-utils/src:tx-pcornet-to-fhir/ python ingest.py --base_url localhost:8080 --input_dir 1000-null --input_data_format pcori --output_dir 1000-out
   ```
 
 ### test
