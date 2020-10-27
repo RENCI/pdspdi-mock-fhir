@@ -36,7 +36,7 @@ PYTHONPATH=tx-utils/src python ingest.py <base_url> <input_dir>
   ```
   For example: 
   ```
-   PYTHONPATH=tx-utils/src:tx-pcornet-to-fhir/ python ingest.py --base_url localhost:8080 --input_dir 1000-null --input_data_format pcori --output_dir 1000-out
+   PYTHONPATH=tx-utils/src:tx-pcornet-to-fhir/ python ingest.py --base_url http://localhost:8080 --input_dir 1000-null --input_data_format pcori --output_dir 1000-out
   ```
 
 ### test
