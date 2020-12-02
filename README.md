@@ -1,6 +1,8 @@
 [![Build Status](https://travis-ci.com/RENCI/pdspi-fhir-example.svg?branch=master)](https://travis-ci.com/RENCI/pdspi-fhir-example)
 # pdspi-fhir-example
 
+FHIR server appliance can run stand-alone or integrates into (PDS)[http://github.com/RENCI/pds-release] development stack. Can be used to serve FHIR data off disk, serve PCORNet data as FHIR, or pass through data from another FHIR server. This appliance allows the administrator to hot-swap FHIR servers without modifying any code or configuration data on the FHIR clients.
+
 ### set up
 edit `tests/docker.env`
 
