@@ -8,6 +8,7 @@ import os.path
 
 patient_id = "1000"
 patient_id2 = "2000"
+patient_id3 = "0000" # non-existent
 patient_resc = {
     "id": patient_id,
     "resourceType": "Patient"
@@ -108,7 +109,7 @@ def test_post_patient_404():
     
         assert resp1.status_code == 200
 
-        resp2 = requests.get(f"{php}/Patient/{patient_id2}")
+        resp2 = requests.get(f"{php}/Patient/{patient_id3}")
 
         assert resp2.status_code == 404
 
