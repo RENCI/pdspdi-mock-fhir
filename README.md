@@ -39,7 +39,7 @@ clients.
       - `MONGO_INITDB_ROOT_PASSWORD`
       - `MONGO_NON_ROOT_USERNAME`
       - `MONGO_NON_ROOT_PASSWORD`
-      - `MONGODB_DATA_VOLUME`
+      - `MONGODB_DATA_VOLUME` - the host directory where patient data will be persisted. Directory must be secure for LDS and PHI.
   
 ## Verify Setup
 
