@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.com/RENCI/pdspi-fhir-example.svg?branch=master)](https://travis-ci.com/RENCI/pdspi-fhir-example)
 
-__Automated testing:__ The `./tests/test.sh` script is called by Travis (in .travis.yml, via hooks/test) with each commit to the master branch. Failing tests cause and update to the 'Build status' tag at the top of this file.
+__Automated testing:__ The `./tests/test.sh` script is called by Travis (in .travis.yml, via hooks/test) with each commit to the master branch. Failing tests cause and update to the 'Build status' tag above.
 
 # "Files to FHIR Server" Appliance
 
