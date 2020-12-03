@@ -3,7 +3,7 @@ services:
   pdspi-fhir-example-test:
     build:
       context: .
-      dockerfile: test/Dockerfile
+      dockerfile: tests/Dockerfile
     command: ["-s", "-x", "-vv"] # , "-k", "test_post_resources"]
     environment:
       OUTPUT_DIR: /shared
