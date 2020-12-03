@@ -16,7 +16,6 @@ https://docs.conda.io/en/latest/miniconda.html
 
 For example, the following works for RHEL 7.9:
 
-    ```
     # To install tx-functional, pandas, python-dateutil, requests, tqdm, joblib:
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
     sha256sum Miniconda3-latest-Linux-x86_64.sh
@@ -26,4 +25,3 @@ For example, the following works for RHEL 7.9:
     pip3 install update pip
     pip3 install tx-functional pandas
     conda install python-dateutil requests tqdm joblib
-    ```
