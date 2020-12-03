@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/RENCI/pdspi-fhir-example.svg?branch=master)](https://travis-ci.com/RENCI/pdspi-fhir-example)
+
 __Automated testing:__ The `./tests/test.sh` script is called by Travis (in .travis.yml, via hooks/test) with each commit to the master branch. Failing tests cause and update to the 'Build status' tag at the top of this file.
 
 # "Files to FHIR Server" Appliance
@@ -117,7 +118,7 @@ For example, PCORNet ingestion might look like this:
 
 `txscience/pdspi-fhir-example:unstable`
 
-Each commit to master triggers a build on dockerhub, tagged with 'unstable'. This image can be run in lieue of `./up.sh, provided the appropriate environemetnal variables such as those found in `tests/env.docker`.
+Each commit to master triggers a build on dockerhub, tagged with 'unstable'. This image can be run in lieue of `./up.sh`, provided the appropriate environemetnal variables such as those found in `tests/env.docker`.
 
 - API documentation
 
