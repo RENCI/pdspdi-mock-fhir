@@ -112,6 +112,31 @@ For example, PCORNet ingestion might look like this:
    PYTHONPATH=tx-utils/src:tx-pcornet-to-fhir/ python ingest.py --base_url http://localhost:8080 --input_dir 1000-null --input_data_format pcori --output_dir 1000-out
   ```
 
+### Trouble shooting
+
+- To interact with the patient database, once populated, look for the mongodb container, e.g., `pdspi-fhir-example-mongodb` (not to be confused with `pdspi-fhir-example`), and run it interactively, as in:
+```
+docker exec -it pdspi-fhir-example-mongodb /bin/sh
+```
+
+- The patient database name, root username and password are set in the environmental variables `PDSPI_FHIR_EXAMPLE_MONGO_DATABASE`, `..._MONGO_INITDB_ROOT_USERNAME, ...`, not to be confused with `..._MONGO_NON_ROOT_USERNAME, ...`
+
+- For example, to count the number of patients in the patient database, one might execute the following:
+```
+$ docker exec -it pdspi-fhir-example-mongodb /bin/sh
+# mongo --username rootuser --password rootpass
+...
+> use fhirdb
+switched to db fhirdb
+> show collections
+Condition
+MedicationRequest
+Observation
+Patient
+> db.Patient.count();
+```
+The count will be 0 if the database is empty.
+
 ## API doc and live example
 
 - Docker image built from latest commit to master
