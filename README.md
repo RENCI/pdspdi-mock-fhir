@@ -97,7 +97,7 @@ have the appliance ingest the data.
 To ingest FHIR data from disk, run:
 
   ```
-  PYTHONPATH=tx-utils/src python ingest.py <base_url> <input_dir>
+  PYTHONPATH=tx-utils/src python ingest.py --base_url <base_url> --input_dir <input_dir>
   ```
 
 To ingest PCORNet data, run:
@@ -105,12 +105,18 @@ To ingest PCORNet data, run:
   ```
   PYTHONPATH=tx-utils/src:tx-pcornet-to-fhir/ python ingest.py --base_url <base_url> --input_dir <pcori_data_input_dir> --input_data_format pcori --output_dir <pcori_data_output_dir>
   ```
+Note: the `pcori` value instructs the ingest to write FHIR jsons to `<pcori_data_output_dir>`. Hence, subsequent runs can ingest directly from disk, with `<input_dir>` = `<pcori_data_output_dir>`.
 
 For example, PCORNet ingestion might look like this: 
 
   ```
    PYTHONPATH=tx-utils/src:tx-pcornet-to-fhir/ python ingest.py --base_url http://localhost:8080 --input_dir 1000-null --input_data_format pcori --output_dir 1000-out
   ```
+and subsequent ingests might look like this:
+  ```
+  PYTHONPATH=tx-utils/src python ingest.py --base_url http://localhost:8080 --input_dir null-out
+  ```
+
 
 ### Trouble shooting
 
